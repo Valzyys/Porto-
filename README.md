@@ -98,7 +98,7 @@ Proyek ini memakai **Cloudflare Workers + Static Assets** dengan adapter resmi `
 2. Buka **Cloudflare Dashboard → Workers & Pages → Create → Workers → Import a repository**.
 3. Hubungkan akun GitHub, lalu pilih repo ini.
 4. Isi konfigurasi build:
-   - **Project name:** `valzyy-portfolio` — wajib sama dengan `name` di `wrangler.jsonc`. Kalau mau nama lain, ubah
+   - **Project name:** `porto` — wajib sama dengan `name` di `wrangler.jsonc`. Kalau mau nama lain, ubah
      dua-duanya.
    - **Build command:** `npm run build` (default dashboard). Script ini sudah menjalankan
      `opennextjs-cloudflare build`, jadi folder `.open-next/` pasti ada sebelum deploy.
@@ -176,7 +176,7 @@ pemilik, bukan dari sumber publik.
 
 - [ ] **[TODO] Email** — isi `contacts → email` di `content/site.ts`. Kandidat dari metadata npm: `jkt48connect@gmail.com` (maintainer `@jkt48/core`). Konfirmasi dulu sebelum dipublikasikan.
 - [ ] **[TODO] Telegram** — isi `contacts → telegram` di `content/site.ts`.
-- [ ] **[TODO] URL produksi** — `site.url` masih placeholder `https://valzyy-portfolio.example.workers.dev`. Ganti setelah deploy (dipakai `metadataBase`/OG).
+- [ ] **[TODO] URL produksi** — `site.url` masih placeholder `https://porto.example.workers.dev`. Ganti setelah deploy (dipakai `metadataBase`/OG).
 - [ ] **[TODO] Peran di Cavallery, FritzyForce, Nayrakuen** — isi jabatan sebenarnya di `content/about.ts` dan `content/projects.ts` (Cavallery).
 - [ ] **[TODO] Bukti publik** — link untuk Harukaze48, JKT48Connect Mobile (toko aplikasi), bot, dan halaman partner API (tandai `kind: "publik"`).
 - [ ] **[TODO] Tahun rilis** — Harukaze48, Payment V2, Partnership, Mobile, bot.
@@ -227,4 +227,4 @@ situs ini:
 2. Kebenaran detail teknis di `content/projects.ts`; semuanya dari brief dan tidak bisa dicek publik.
 3. Apakah boleh menyebut nama fanbase (Cavallery, FritzyForce, Nayrakuen) di situs pribadi.
 4. Tampilan di perangkat nyata (iOS Safari, Android Chrome), terutama canvas hero dan smooth scroll.
-5. Nama worker `valzyy-portfolio` di `wrangler.jsonc` sebelum menghubungkan Workers Builds.
+5. Nama worker `porto` di `wrangler.jsonc` harus sama dengan nama Worker di dashboard.

@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   // Nama worker = nama project di dashboard Cloudflare (Workers & Pages).
-  "name": "valzyy-portfolio",
+  "name": "porto",
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-10-19",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],

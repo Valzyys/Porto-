@@ -25,7 +25,7 @@ export const site = {
     tzLabel: "WIB",
   },
   /** URL produksi. [TODO] ganti setelah domain final dipasang. */
-  url: "https://valzyy-portfolio.example.workers.dev",
+  url: "https://porto.example.workers.dev",
 } as const;
 
 export type ContactItem = {
