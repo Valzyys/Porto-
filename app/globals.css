@@ -1,0 +1,214 @@
+@import "tailwindcss";
+@import "lenis/dist/lenis.css";
+
+/*
+ * Nilai token TIDAK ditulis di sini. Semua nilai ada di design/tokens.ts,
+ * disuntik sebagai CSS variable (--c-*, --s-*, --z-*, --dur-*, --ease-*)
+ * oleh app/layout.tsx. Blok @theme di bawah hanya memetakan nama Tailwind
+ * ke variable tersebut.
+ */
+@theme inline {
+  --color-ink: var(--c-ink);
+  --color-stage: var(--c-stage);
+  --color-panel: var(--c-panel);
+  --color-line: var(--c-line);
+  --color-paper: var(--c-paper);
+  --color-mute: var(--c-mute);
+  --color-pink: var(--c-pink);
+  --color-mint: var(--c-mint);
+  --color-lemon: var(--c-lemon);
+  --color-peach: var(--c-peach);
+
+  --font-display: var(--font-bricolage);
+  --font-pixel: var(--font-silkscreen);
+  --font-mono: var(--font-jetbrains);
+  --font-sans: var(--font-jetbrains);
+
+  --spacing: var(--s-unit);
+  --spacing-gutter: var(--s-gutter);
+  --spacing-section: var(--s-section);
+  --spacing-px4: var(--s-pixel);
+
+  --z-index-hud: var(--z-hud);
+  --z-index-menu: var(--z-menu);
+  --z-index-curtain: var(--z-curtain);
+  --z-index-intro: var(--z-intro);
+  --z-index-cursor: var(--z-cursor);
+  --z-index-raised: var(--z-raised);
+
+  --ease-pixel: var(--ease-out);
+  --ease-stage: var(--ease-inOut);
+}
+
+@layer base {
+  html {
+    background: var(--c-ink);
+    color: var(--c-paper);
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background: var(--c-ink);
+    transition: background-color var(--dur-base) var(--ease-out), color var(--dur-base) var(--ease-out);
+    font-family: var(--font-jetbrains), ui-monospace, monospace;
+    font-size: 15px;
+    line-height: 1.65;
+    overflow-x: clip;
+  }
+
+  @media (min-width: 768px) {
+    body {
+      font-size: 16px;
+    }
+  }
+
+  ::selection {
+    background: var(--c-pink);
+    color: var(--c-ink);
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--c-lemon);
+    outline-offset: 3px;
+    border-radius: 0;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  pre {
+    font-family: inherit;
+  }
+}
+
+@layer components {
+  /* Judul: sans tebal dengan tracking rapat (bukan font pixel). */
+  .font-display {
+    font-weight: 700;
+    letter-spacing: -0.025em;
+  }
+
+  /* Bingkai tipis bersudut tegas. Warna lewat --px-c. */
+  .px-border {
+    --px-c: var(--c-line);
+    border: 1px solid var(--px-c);
+  }
+
+  /* Dithering ordered (pola titik 4px) untuk latar tertentu. */
+  .dither {
+    background-image: radial-gradient(var(--dither-c, var(--c-line)) 1px, transparent 1.2px);
+    background-size: var(--s-pixel) var(--s-pixel);
+  }
+
+  .dither-coarse {
+    background-image:
+      linear-gradient(45deg, var(--dither-c, var(--c-line)) 25%, transparent 25%, transparent 75%, var(--dither-c, var(--c-line)) 75%),
+      linear-gradient(45deg, var(--dither-c, var(--c-line)) 25%, transparent 25%, transparent 75%, var(--dither-c, var(--c-line)) 75%);
+    background-size: calc(var(--s-pixel) * 2) calc(var(--s-pixel) * 2);
+    background-position: 0 0, var(--s-pixel) var(--s-pixel);
+  }
+
+  .scanlines {
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 3px,
+      color-mix(in srgb, var(--c-ink) 55%, transparent) 3px,
+      color-mix(in srgb, var(--c-ink) 55%, transparent) 4px
+    );
+  }
+
+  /* kata panjang di font pixel boleh dipatahkan agar tidak overflow */
+  .wrap-any {
+    overflow-wrap: anywhere;
+  }
+
+  .gutter {
+    padding-inline: var(--s-gutter);
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    padding: 0.15em 0.6em;
+    font-size: 0.75rem;
+    line-height: 1.6;
+    border: 1px solid var(--c-line);
+    color: var(--c-paper);
+    background: var(--c-stage);
+    white-space: nowrap;
+  }
+
+  .label {
+    font-family: var(--font-jetbrains);
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--c-mute);
+  }
+}
+
+/* ===== Intro: disembunyikan sebelum paint bila sudah pernah tampil ===== */
+html[data-intro-seen] [data-intro] {
+  display: none;
+}
+
+/* ===== Reveal: hanya disembunyikan kalau JS aktif ===== */
+html.js [data-reveal] {
+  opacity: 0;
+}
+
+/* ===== Kursor custom (hanya pointer halus, diaktifkan lewat JS) ===== */
+html.has-cursor,
+html.has-cursor a,
+html.has-cursor button {
+  cursor: none;
+}
+
+/* ===== Blink untuk status/caret ===== */
+@keyframes vzy-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.blink {
+  animation: vzy-blink 1.1s steps(1) infinite;
+}
+
+/* ===== Spotlight sapu untuk 404 ===== */
+@keyframes vzy-sweep {
+  0%,
+  100% {
+    --spot-x: 20%;
+  }
+  50% {
+    --spot-x: 80%;
+  }
+}
+
+@property --spot-x {
+  syntax: "<percentage>";
+  inherits: true;
+  initial-value: 50%;
+}
+
+/* ===== Reduced motion: matikan animasi berat ===== */
+@media (prefers-reduced-motion: reduce) {
+  html.js [data-reveal] {
+    opacity: 1;
+  }
+
+  .blink,
+  [data-sweep] {
+    animation: none !important;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+}
