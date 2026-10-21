@@ -17,8 +17,9 @@ npm install
 npm run dev          # dev server Next.js → http://localhost:3000
 npm run lint         # ESLint (eslint-config-next)
 npm run typecheck    # tsc --noEmit
-npm run build        # next build biasa
-npm run preview      # build OpenNext + preview di runtime Workers (workerd) → http://localhost:8787
+npm run build        # build OpenNext (menjalankan `next build` lalu bundling untuk Workers → .open-next/)
+npm run build:next   # hanya `next build`
+npm run preview      # build + preview di runtime Workers (workerd) → http://localhost:8787
 ```
 
 Butuh Node.js ≥ 20.9. Wrangler hanya dipakai untuk preview lokal; deploy dilakukan lewat dashboard Cloudflare (lihat
@@ -99,7 +100,10 @@ Proyek ini memakai **Cloudflare Workers + Static Assets** dengan adapter resmi `
 4. Isi konfigurasi build:
    - **Project name:** `valzyy-portfolio` — wajib sama dengan `name` di `wrangler.jsonc`. Kalau mau nama lain, ubah
      dua-duanya.
-   - **Build command:** `npx opennextjs-cloudflare build`
+   - **Build command:** `npm run build` (default dashboard). Script ini sudah menjalankan
+     `opennextjs-cloudflare build`, jadi folder `.open-next/` pasti ada sebelum deploy.
+     Jangan pakai `next build` saja, karena deploy akan gagal dengan
+     `Could not find compiled Open Next config`.
    - **Deploy command:** `npx wrangler deploy` (default)
    - **Non-production branch deploy command (opsional):** `npx wrangler versions upload`
    - **Root directory:** `/`
@@ -126,8 +130,7 @@ Kompatibilitas Workers:
 | --- | --- |
 | `npm run lint` | lolos, 0 error / 0 warning |
 | `tsc --noEmit` | lolos |
-| `next build` | sukses; 17 halaman statis (`/`, `/about`, `/projects`, 9× `/projects/[slug]` SSG, `/stack`, `/contact`, 404, icon) |
-| `opennextjs-cloudflare build` | sukses |
+| `npm run build` (OpenNext → `next build`) | sukses; 17 halaman statis (`/`, `/about`, `/projects`, 9× `/projects/[slug]` SSG, `/stack`, `/contact`, 404, icon) |
 | Ukuran worker (`wrangler deploy --dry-run`) | **5 659 KiB mentah / 1 188 KiB gzip**, di bawah batas free plan 3 MiB |
 | Preview Workers (`opennextjs-cloudflare preview`) | `/` `/about` `/projects` `/projects/*` `/stack` `/contact` → 200; URL acak → 404 bertema |
 | Error JS di browser (Playwright, semua halaman, 2 ukuran, 2 tema) | tidak ada (selain 404 yang memang disengaja) |
