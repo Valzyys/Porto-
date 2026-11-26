@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { PixelIcon } from "@/components/pixel/PixelIcon";
+import { Icon } from "@/components/ui/Icon";
 
 export function CopyButton({ value, label }: { value: string; label: string }) {
   const [done, setDone] = useState(false);
@@ -20,10 +20,9 @@ export function CopyButton({ value, label }: { value: string; label: string }) {
           /* clipboard diblokir: diam saja */
         }
       }}
-      className="flex items-center gap-2 bg-stage px-3 py-2 font-mono text-[0.65rem] uppercase tracking-widest hover:bg-ink hover:text-lemon"
-      data-cursor="COPY"
+      className="micro flex items-center gap-1.5 rounded-pill border border-line px-2.5 py-1 transition-colors duration-150 hover:bg-ink hover:text-canvas"
     >
-      <PixelIcon name="copy" size={12} />
+      <Icon name={done ? "check" : "copy"} size={12} />
       <span aria-live="polite">{done ? "tersalin" : "salin"}</span>
     </button>
   );

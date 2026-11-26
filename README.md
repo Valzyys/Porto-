@@ -1,12 +1,14 @@
 # Valzyy — portofolio
 
 Situs portofolio Valzyy, independent full-stack developer dari Semarang, Jawa Tengah, dan founder JKT48Connect.
-Temanya panggung idol + ASCII: hero berupa panggung ASCII di canvas, menu HUD, transisi tile, dan footer berbentuk
-credit roll. Tersedia tema gelap dan terang.
+Gaya visualnya UI "game HUD" editorial (di-slice dari referensi lewat skill `precision-ui-slicing`):
+kanvas putih, biru kobalt + aksen oranye/peach, garis hitam tegas, angka raksasa bertopeng berisi ilustrasi
+halftone, spec sheet, log chat, dan bar gelap bersudut miring. Tersedia tema terang dan gelap.
 
-- **Stack:** Next.js 16 (App Router) · TypeScript · Tailwind CSS 4 · GSAP + ScrollTrigger + Flip (`@gsap/react`) · Lenis
+- **Stack:** Next.js 16.4.6 (App Router) · TypeScript · Tailwind CSS 4 · GSAP + ScrollTrigger + Flip (`@gsap/react`) · Lenis
 - **Deploy:** Cloudflare Workers + Static Assets lewat `@opennextjs/cloudflare` (bukan Pages)
-- **Font (self-host via `next/font`, OFL):** Bricolage Grotesque (judul) · JetBrains Mono (body/label) · Silkscreen (aksen pixel kecil)
+- **Font (self-host via `next/font`, OFL):** Archivo variable (semua teks; sumbu `wdth` untuk angka banner) ·
+  JetBrains Mono (diagram/koordinat). Teks Jepang memakai font sistem (tanpa webfont).
 
 ---
 
@@ -32,7 +34,7 @@ npm run preview                       # terminal 1
 node scripts/screenshots.mjs          # terminal 2 (butuh paket `playwright` terpasang terpisah)
 ```
 
-Hasilnya masuk ke `screenshots/` dengan pola `halaman-ukuran-state.png` (mobile 390px, desktop 1440px; gelap + `-light`).
+Hasilnya masuk ke `screenshots/` dengan pola `halaman-ukuran-state.png` (mobile 390px, desktop 1440px; terang + varian `-dark`).
 
 ---
 
@@ -46,6 +48,7 @@ Semua isi ada di `content/` (TypeScript). Komponen tidak perlu disentuh.
 | `content/projects.ts` | daftar proyek: tagline, kategori (`Web`/`Mobile`/`Bot`/`Infra`), peran, stack, problem, solusi, tantangan, diagram ASCII, bukti, `featured` |
 | `content/stack.ts` | teknologi per blok + level jujur (`sering` / `pakai` / `eksplorasi`) |
 | `content/about.ts` | bio, timeline, prinsip kerja |
+| `content/home.ts` | isi spec sheet beranda, log chat, bar statistik (angka dihitung dari data lain) |
 
 - Proyek baru otomatis dapat halaman `/projects/[slug]` (statis via `generateStaticParams`).
 - Proyek dengan `featured: true` tampil di section pinned beranda (idealnya 3–4).
@@ -55,15 +58,16 @@ Semua isi ada di `content/` (TypeScript). Komponen tidak perlu disentuh.
 ### Design tokens
 
 Semua warna (gelap & terang), font, spacing, z-index, durasi, dan easing ada di **`design/tokens.ts`**. Nilainya
-disuntik sebagai CSS variable di `<head>` lalu dipetakan ke class Tailwind di `app/globals.css` (`bg-ink`,
-`text-pink`, `font-display`, …). GSAP membaca `motion.*` langsung dari file yang sama.
+disuntik sebagai CSS variable di `<head>` lalu dipetakan ke class Tailwind di `app/globals.css` (`bg-canvas`,
+`text-ink`, `bg-blue`, `border-line`, `border-hair`, `rounded-card`, …). GSAP membaca `motion.*` langsung dari file
+yang sama. Oranye/peach hanya untuk isian & ilustrasi (kontrasnya tidak cukup untuk teks).
 
 ### Tema terang/gelap
 
 - Default ikut setting sistem (`prefers-color-scheme`).
-- Tombol tema ada di pojok kanan atas dan di dalam menu. Pilihan disimpan di `localStorage` (`vzy:theme`, dengan
-  try/catch) dan diterapkan sebelum paint supaya tidak berkedip.
-- Canvas ASCII hero membaca warna dari CSS variable, jadi ikut berganti tema.
+- Toggle tersegmen (bulan/matahari) di topbar. Pilihan disimpan di `localStorage` (`vzy:theme`, dengan try/catch)
+  dan diterapkan sebelum paint supaya tidak berkedip.
+- Ilustrasi banner memakai CSS variable, jadi ikut berganti tema.
 
 ---
 
@@ -71,20 +75,22 @@ disuntik sebagai CSS variable di `<head>` lalu dipetakan ke class Tailwind di `a
 
 ```
 app/
-  layout.tsx            font, token CSS, script head (intro + tema), provider, menu, footer
+  layout.tsx            font, token CSS, script head (intro + tema), provider, topbar, footer
   template.tsx          dipanggil tiap pindah route → buka tirai tile
-  page.tsx              beranda: hero ASCII, siapa, setlist pinned, marquee stack, CTA
+  page.tsx              beranda: kartu progres, banner "2026", spec sheet + chat, bar statistik, proyek pinned, CTA
   about/ projects/ projects/[slug]/ stack/ contact/ not-found.tsx
 components/
-  ascii/AsciiStage.tsx  panggung ASCII di canvas (lazy-load, ≤30fps, pause offscreen)
+  art/                  MaskedBanner (teks raksasa sebagai clip-path SVG) + StageArt (ilustrasi vektor orisinal)
+  home/                 SpecGrid, StatBar, FeaturedProjects
+  layout/               TopBar, PageHero, Intro (kartu "Loading…"), Footer (bar miring)
+  projects/             ProjectCard, ProjectGrid (filter tersegmen + Flip)
   transition/           TransitionProvider (tile grid) + TransitionLink
-  nav/HudMenu.tsx       tombol melayang kanan-bawah + overlay HUD 01/05
-  layout/               Intro (boot sequence), Footer (credit roll), CornerMark
-  ui/                   Scramble, Magnetic, Cursor, Marquee, Reveal, Counter, ScrollProgress, ThemeToggle, …
+  ui/                   Icon (ikon garis buatan sendiri), ThemeToggle, ProgressCard, ChatLog, SlashBar, SectionHead, …
 content/                data situs (edit di sini)
 design/tokens.ts        design tokens
-lib/                    gsap, store kecil, tema, scramble, util ASCII
+lib/                    gsap, store kecil, tema
 scripts/screenshots.mjs ambil screenshot via Playwright
+.claude/skills/         skill Claude Code `precision-ui-slicing`
 ```
 
 ---
@@ -130,12 +136,12 @@ Kompatibilitas Workers:
 | --- | --- |
 | `npm run lint` | lolos, 0 error / 0 warning |
 | `tsc --noEmit` | lolos |
-| `npm run build` (OpenNext → `next build`) | sukses; 17 halaman statis (`/`, `/about`, `/projects`, 9× `/projects/[slug]` SSG, `/stack`, `/contact`, 404, icon) |
-| Ukuran worker (`wrangler deploy --dry-run`) | **5 659 KiB mentah / 1 188 KiB gzip**, di bawah batas free plan 3 MiB |
+| `npm run build` (OpenNext → `next build`, Next 16.4.6) | sukses; 17 halaman statis (`/`, `/about`, `/projects`, 9× `/projects/[slug]` SSG, `/stack`, `/contact`, 404, icon) |
+| Ukuran worker (`wrangler deploy --dry-run`) | **5 429 KiB mentah / 1 161 KiB gzip**, di bawah batas free plan 3 MiB |
 | Preview Workers (`opennextjs-cloudflare preview`) | `/` `/about` `/projects` `/projects/*` `/stack` `/contact` → 200; URL acak → 404 bertema |
 | Error JS di browser (Playwright, semua halaman, 2 ukuran, 2 tema) | tidak ada (selain 404 yang memang disengaja) |
 | Overflow horizontal di 360 / 390 / 768 / 1024 / 1280 / 1920 px | tidak ada |
-| Perilaku | intro bisa di-skip (klik/Enter/Esc) dan hanya tampil sekali per sesi; navigasi cepat 3 link beruntun berakhir di link terakhir tanpa tirai tertinggal; back/forward dan detail→detail tetap memutar transisi; reduced motion: intro jadi fade, semua konten terlihat; menu bisa dipakai keyboard (fokus masuk, Esc menutup dan fokus kembali ke tombol); kursor custom mati di perangkat sentuh |
+| Perilaku | intro bisa di-skip (klik/Enter/Esc) dan hanya tampil sekali per sesi; navigasi cepat 3 link beruntun berakhir di link terakhir tanpa tirai tertinggal; back/forward dan detail→detail tetap memutar transisi; reduced motion: intro jadi fade, semua konten terlihat; toggle tema bisa dipakai keyboard dan pilihan bertahan setelah reload; tanpa pilihan manual, tema ikut setting sistem |
 
 Log `Unable to fetch the Request.cf object` saat preview lokal muncul karena sandbox tidak punya akses ke endpoint
 Cloudflare itu; tidak memengaruhi halaman.
@@ -200,21 +206,28 @@ situs ini:
 
 ## Keputusan default yang diambil
 
-- **Arah visual direvisi** setelah feedback “terlalu pixel”: judul memakai sans tebal (Bricolage Grotesque) alih-alih
-  font pixel, easing `steps()` diganti easing halus (kecuali efek mengetik di intro), border bersudut-terpotong jadi
-  garis tipis, dither di menu dihapus. Unsur pixel/ASCII tetap ada di canvas hero, intro, signature footer, 404,
-  ikon, dan aksen kecil (logo `VZY/`, badge).
-- **Light mode** ditambahkan dengan palet terang sendiri (aksen lebih pekat supaya kontras ≥ 4.5:1). Default ikut
-  sistem.
-- Palet dibuat sendiri (ink/krem + penlight pink, mint, lemon, peach). Tidak memakai warna, logo, foto, atau aset
-  resmi JKT48. Kartu profil memakai ilustrasi pixel “NO PHOTO”, bukan foto.
-- Statistik di kartu profil **dihitung dari isi situs** (jumlah proyek, jumlah teknologi, 2 paket npm terverifikasi,
-  3 platform bot), bukan angka karangan.
+- **Redesign total (UI game HUD)** mengikuti gambar referensi yang diberikan: topbar menu teks + toggle tema
+  tersegmen, kartu "Uploading…", angka raksasa bertopeng berisi ilustrasi, spec sheet 4 kolom + chat, bar gelap
+  bersudut miring. Yang dibuang: canvas ASCII, menu HUD melayang, kursor custom, ikon pixel, credit roll, marquee.
+  Yang dipertahankan: GSAP + Lenis, intro sekali per sesi (kini kartu "Loading…"), transisi tile (warna baru),
+  reveal, proyek pinned, dan semua konten di `content/`.
+- **Ilustrasi di dalam angka** adalah vektor orisinal (lampu sorot, penlight, bintang, halftone) — sengaja tidak
+  memakai karakter anime dari referensi atau aset/foto siapa pun.
+- **Kartu progres** dibuat jujur: persen = progres scroll halaman, "min left" = sisa kata ÷ 200 kata/menit.
+- **Teks Jepang** di spec sheet adalah terjemahan tagline ("developer yang membangun infrastruktur untuk fans"),
+  dirender dengan font sistem.
+- **Chat** di beranda, contact, dan 404 bersifat dekoratif dan tidak mengklaim apa pun; tautan di chat contact
+  adalah kontak yang terverifikasi.
+- Palet dibuat sendiri (putih/kobalt/oranye/peach/hitam). Tema default ikut sistem; aksen tema gelap disesuaikan
+  supaya kontras teks tetap ≥ 4.5:1. Tidak memakai warna, logo, foto, atau aset resmi JKT48.
+- Statistik (jumlah proyek, teknologi) **dihitung dari isi situs**, bukan angka karangan.
+- **Next.js dinaikkan ke 16.4.6** karena 16.4.2 memicu peringatan kerentanan keamanan yang menghentikan build.
 - JKT48Connect dipecah jadi beberapa studi kasus (Live, Payment, Partnership, Bots, `@jkt48/core`) supaya filter
   kategori bermakna. Proyek unggulan di beranda: JKT48Connect, Live, Harukaze48, Mobile.
 - Kontak hanya menampilkan yang terverifikasi (GitHub `valzyys`, org `JKT48Connect`, npm). Email dan Telegram
   ditampilkan “[ belum diisi ]”. Nomor WhatsApp di README jkt48-core sengaja tidak dipakai.
-- Navigasi: tombol melayang kanan-bawah (jangkauan jempol) + overlay HUD dengan indeks 01/05. Tidak ada navbar atas.
+- Navigasi: topbar sticky (logo, menu teks — halaman aktif bold italic, toggle tema). Di mobile menu turun ke baris
+  kedua.
 - Intro hanya sekali per sesi (`sessionStorage`), bisa di-skip. Overlay intro ikut dirender di server, lalu
   disembunyikan oleh script `<head>` kalau sudah pernah tampil, supaya tidak berkedip.
 - Halaman `/contact` tanpa form karena tidak ada backend.
@@ -226,5 +239,5 @@ situs ini:
 1. Semua item [TODO] di atas, terutama email, Telegram, dan peran di tiap fanbase.
 2. Kebenaran detail teknis di `content/projects.ts`; semuanya dari brief dan tidak bisa dicek publik.
 3. Apakah boleh menyebut nama fanbase (Cavallery, FritzyForce, Nayrakuen) di situs pribadi.
-4. Tampilan di perangkat nyata (iOS Safari, Android Chrome), terutama canvas hero dan smooth scroll.
+4. Tampilan di perangkat nyata (iOS Safari, Android Chrome), terutama banner bertopeng (clip-path SVG) dan smooth scroll.
 5. Nama worker `porto` di `wrangler.jsonc` harus sama dengan nama Worker di dashboard.

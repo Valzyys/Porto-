@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import { bio, timeline, principles } from "@/content/about";
 import { site } from "@/content/site";
+import { spec } from "@/content/home";
 import { Reveal } from "@/components/ui/Reveal";
-import { AsciiDivider } from "@/components/ui/AsciiDivider";
-import { Scramble } from "@/components/ui/Scramble";
 import { Clock } from "@/components/ui/Clock";
-import { PixelIcon } from "@/components/pixel/PixelIcon";
+import { Icon, Diamonds } from "@/components/ui/Icon";
+import { SectionHead } from "@/components/ui/SectionHead";
+import { PageHero } from "@/components/layout/PageHero";
 import { Timeline } from "@/components/about/Timeline";
 import { JavaMap } from "@/components/about/JavaMap";
 
@@ -14,54 +15,49 @@ export const metadata: Metadata = {
   description: `Bio, timeline, dan prinsip kerja ${site.name} — developer full-stack dari ${site.location.city}, ${site.location.province}.`,
 };
 
+const facts: [string, string][] = [
+  ["Nama", site.name],
+  ["Peran", site.role],
+  ["Founder", `${site.founderOf} (${site.since})`],
+  ["Basis", `${site.location.city}, ${site.location.province}`],
+  ["Mode", "Solo developer"],
+];
+
 export default function AboutPage() {
   return (
     <>
-      {/* header: judul besar rata kanan, indeks di kiri */}
-      <header className="gutter pt-28 md:pt-36">
-        <div className="grid gap-6 md:grid-cols-[10rem_minmax(0,1fr)]">
-          <p className="label">02 / about</p>
-          <h1 className="text-right font-display text-[clamp(2.6rem,10vw,8.5rem)] leading-[0.88]">
-            <Scramble text="DI BELAKANG" trigger="mount" className="block" />
-            <Scramble text="LAYAR." trigger="mount" delay={0.2} className="block text-pink" />
-          </h1>
-        </div>
-      </header>
+      <PageHero status="Reading bio…" banner={String(site.since)} bannerLabel={`Ilustrasi di dalam angka ${site.since}, tahun JKT48Connect dimulai`} mirror />
 
-      {/* bio: jendela terminal sticky di kiri, paragraf di kanan */}
-      <section aria-labelledby="bio-title" className="gutter py-section">
-        <AsciiDivider index="A" label="bio.txt" />
+      {/* bio: kartu fakta di kiri, paragraf di kanan */}
+      <section aria-labelledby="bio-title" className="page-wrap pt-section">
+        <SectionHead as="h1" id="bio-title" title="About" badge="02 / 05" meta="Bio, timeline, lokasi, dan aturan main" />
         <div className="mt-10 grid gap-10 md:grid-cols-[minmax(0,20rem)_minmax(0,1fr)] md:gap-16">
-          <div className="md:sticky md:top-24 md:self-start">
-            <div className="px-border bg-panel">
-              <div className="flex items-center gap-2 border-b border-line px-3 py-2 font-mono text-[0.65rem] uppercase tracking-widest text-mute">
-                <span className="h-2 w-2 bg-pink" />
-                <span className="h-2 w-2 bg-lemon" />
-                <span className="h-2 w-2 bg-mint" />
-                <span className="ml-2">whoami</span>
+          <aside className="md:sticky md:top-28 md:self-start">
+            <div className="rounded-card border border-line">
+              <div className="flex items-center justify-between border-b border-line px-4 py-3">
+                <span className="text-sm font-extrabold">{site.name} {"//"}</span>
+                <Diamonds size={22} />
               </div>
-              <dl className="space-y-2 p-4 text-xs">
-                {[
-                  ["nama", site.name],
-                  ["peran", site.role],
-                  ["founder", `${site.founderOf} (${site.since})`],
-                  ["basis", `${site.location.city}, ${site.location.province}`],
-                  ["mode", "solo developer"],
-                ].map(([k, v]) => (
-                  <div key={k} className="grid grid-cols-[5rem_minmax(0,1fr)] gap-2">
-                    <dt className="text-mute">{k}:</dt>
-                    <dd>{v}</dd>
+              <dl className="divide-y divide-hair">
+                {facts.map(([k, v]) => (
+                  <div key={k} className="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-3 px-4 py-2.5">
+                    <dt className="micro pt-0.5 text-mute">{k}</dt>
+                    <dd className="text-sm font-semibold">{v}</dd>
                   </div>
                 ))}
               </dl>
             </div>
-          </div>
+            <p className="jp mt-5 text-sm font-bold leading-snug" lang="ja">
+              {spec.jp.join("")}
+            </p>
+            <p className="micro mt-1 text-mute">{spec.jpCaption}</p>
+          </aside>
           <Reveal className="max-w-2xl space-y-6">
-            <h2 id="bio-title" data-reveal className="font-display text-2xl leading-tight md:text-4xl">
+            <h2 data-reveal className="text-[clamp(1.6rem,3.5vw,2.5rem)] font-extrabold leading-tight tracking-tight">
               Satu orang, satu ekosistem, banyak worker.
             </h2>
             {bio.map((p, i) => (
-              <p key={i} data-reveal className="text-paper/85 md:text-lg">
+              <p key={i} data-reveal className="text-ink/85 md:text-lg">
                 {p}
               </p>
             ))}
@@ -69,75 +65,71 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* timeline: rel ASCII vertikal yang tergambar mengikuti scroll */}
-      <section aria-labelledby="timeline-title" className="overflow-x-clip bg-stage py-section">
-        <div className="gutter">
-          <AsciiDivider index="B" label="timeline" />
-          <h2 id="timeline-title" className="mt-8 font-display text-[clamp(1.9rem,5vw,3.8rem)] leading-none">
-            Jejak <span className="text-mint">rilis</span>
-          </h2>
-          <p className="mt-4 max-w-xl text-sm text-mute">
-            Tanggal ditulis hanya kalau ada sumbernya. Entri bertanda “—” belum punya tanggal yang bisa diverifikasi.
-          </p>
-          <Timeline items={timeline} />
-        </div>
+      {/* timeline */}
+      <section aria-labelledby="timeline-title" className="page-wrap pt-section">
+        <SectionHead
+          id="timeline-title"
+          title="Timeline"
+          badge={`${String(timeline.length).padStart(2, "0")} ENTRI`}
+          meta="Tanggal ditulis hanya kalau ada sumbernya; “—” = belum terverifikasi"
+        />
+        <Timeline items={timeline} />
       </section>
 
-      {/* lokasi: peta pixel + koordinat */}
-      <section aria-labelledby="loc-title" className="gutter py-section">
-        <AsciiDivider index="C" label="lokasi" />
-        <div className="mt-10 grid items-center gap-10 lg:grid-cols-[1fr_minmax(0,22rem)]">
+      {/* lokasi */}
+      <section aria-labelledby="loc-title" className="page-wrap pt-section">
+        <SectionHead id="loc-title" title="Lokasi" badge="SMG.ID" meta="Peta ilustrasi, bukan skala sebenarnya" />
+        <div className="mt-10 grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)]">
           <JavaMap />
-          <Reveal className="space-y-4">
-            <h2 id="loc-title" data-reveal className="font-display text-3xl leading-tight md:text-5xl">
-              {site.location.city},<br />
-              <span className="text-lemon">{site.location.province}</span>
-            </h2>
-            <dl data-reveal className="space-y-2 text-sm">
-              <div className="flex justify-between border-b border-dashed border-line pb-2">
-                <dt className="text-mute">koordinat</dt>
-                <dd>
+          <Reveal className="space-y-5">
+            <h3 data-reveal className="text-[clamp(1.75rem,4vw,3rem)] font-extrabold leading-none tracking-tight">
+              {site.location.city},
+              <br />
+              <span className="text-blue-ink">{site.location.province}</span>
+            </h3>
+            <dl data-reveal className="divide-y divide-hair border-y border-hair text-sm">
+              <div className="flex justify-between py-2.5">
+                <dt className="micro text-mute">Koordinat</dt>
+                <dd className="font-mono text-xs tabular-nums">
                   {site.location.lat}, {site.location.lon}
                 </dd>
               </div>
-              <div className="flex justify-between border-b border-dashed border-line pb-2">
-                <dt className="text-mute">zona waktu</dt>
-                <dd>{site.location.tzLabel} (UTC+7)</dd>
+              <div className="flex justify-between py-2.5">
+                <dt className="micro text-mute">Zona waktu</dt>
+                <dd className="font-semibold">{site.location.tzLabel} (UTC+7)</dd>
               </div>
-              <div className="flex justify-between border-b border-dashed border-line pb-2">
-                <dt className="text-mute">jam sekarang</dt>
-                <dd className="text-mint">
+              <div className="flex justify-between py-2.5">
+                <dt className="micro text-mute">Jam sekarang</dt>
+                <dd className="font-semibold tabular-nums">
                   <Clock withZone={false} />
                 </dd>
               </div>
             </dl>
-            <p data-reveal className="flex items-center gap-2 text-xs text-mute">
-              <PixelIcon name="pin" size={12} className="text-pink" /> peta ilustrasi, bukan skala sebenarnya
+            <p data-reveal className="micro flex items-center gap-2 text-mute">
+              <Icon name="pin" size={14} className="text-blue-ink" /> titik = {site.location.city}
             </p>
           </Reveal>
         </div>
       </section>
 
-      {/* prinsip: baris berselang-seling kiri/kanan */}
-      <section aria-labelledby="principles-title" className="gutter pb-section">
-        <AsciiDivider index="D" label="prinsip kerja" />
-        <h2 id="principles-title" className="mt-8 font-display text-[clamp(1.9rem,5vw,3.8rem)] leading-none">
-          Aturan main
-        </h2>
-        <p className="mt-4 max-w-xl text-sm text-mute">Bukan slogan — tiap poin ditarik dari sesuatu yang memang sudah dibangun.</p>
-        <Reveal as="ol" className="mt-12 space-y-10">
-          {principles.map((p, i) => (
-            <li
-              key={p.code}
-              data-reveal
-              className={`grid max-w-3xl gap-3 md:grid-cols-[6rem_minmax(0,1fr)] ${i % 2 ? "md:ml-auto" : ""}`}
-            >
-              <span className="font-display text-5xl leading-none text-line">{p.code}</span>
-              <div>
-                <h3 className="font-display text-xl text-paper md:text-2xl">{p.title}</h3>
-                <p className="mt-2 text-paper/85">{p.body}</p>
-                <p className="mt-3 inline-block bg-stage px-2 py-1 text-xs text-mint">bukti: {p.evidence}</p>
+      {/* prinsip */}
+      <section aria-labelledby="principles-title" className="page-wrap pt-section">
+        <SectionHead
+          id="principles-title"
+          title="Aturan main"
+          badge={`${String(principles.length).padStart(2, "0")} RULES`}
+          meta="Tiap poin ditarik dari sesuatu yang memang sudah dibangun"
+        />
+        <Reveal as="ol" className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {principles.map((p) => (
+            <li key={p.code} data-reveal className="flex flex-col gap-3 rounded-card border border-line p-5">
+              <div className="flex items-center justify-between">
+                <span className="rounded-xs bg-blue px-1.5 py-0.5 text-[0.6875rem] font-bold text-on-blue">{p.code}</span>
+                <Icon name="spark" size={16} className="text-orange" />
               </div>
+              <h3 className="text-xl font-extrabold tracking-tight">{p.title}</h3>
+              <p className="text-sm text-mute">{p.body}</p>
+              <p className="micro mt-auto border-t border-hair pt-3 text-ink/80">Bukti: {p.evidence}</p>
             </li>
           ))}
         </Reveal>

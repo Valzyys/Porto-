@@ -10,7 +10,7 @@ const H = 16;
 const LON_W = 105.2;
 const LON_E = 114.6;
 
-/** Bentuk pulau dibuat prosedural & disederhanakan: ilustrasi, bukan peta akurat. */
+/** Bentuk pulau dibuat prosedural & disederhanakan: ilustrasi halftone, bukan peta akurat. */
 function buildLand(): boolean[][] {
   const g = Array.from({ length: H }, () => Array<boolean>(W).fill(false));
   for (let x = 0; x < W; x++) {
@@ -50,49 +50,42 @@ export function JavaMap() {
   );
 
   return (
-    <div ref={ref} className="px-border relative bg-stage p-3 md:p-6">
+    <div ref={ref} className="relative overflow-hidden rounded-card border border-line bg-surface p-4 md:p-6">
       <svg
         viewBox={`0 0 ${W} ${H}`}
         className="h-auto w-full"
-        shapeRendering="crispEdges"
         role="img"
-        aria-label={`Ilustrasi pixel Pulau Jawa dengan penanda di ${site.location.city}, ${site.location.province}`}
+        aria-label={`Ilustrasi halftone Pulau Jawa dengan penanda di ${site.location.city}, ${site.location.province}`}
       >
         {Array.from({ length: W }, (_, x) => (
           <g key={x} data-col>
             {LAND.map((row, y) =>
               row[x] ? (
-                <rect
+                <circle
                   key={y}
-                  x={x}
-                  y={y}
-                  width="1"
-                  height="1"
-                  fill={(x + y) % 2 ? "var(--c-line)" : "var(--c-panel)"}
-                  opacity={x >= 26 && x <= 44 ? 1 : 0.7}
+                  cx={x + 0.5}
+                  cy={y + 0.5}
+                  r={x >= 26 && x <= 44 ? 0.42 : 0.32}
+                  fill={x >= 26 && x <= 44 ? "var(--c-blue)" : "var(--c-mute)"}
                 />
-              ) : (x * 3 + y * 7) % 23 === 0 ? (
-                <rect key={y} x={x + 0.4} y={y + 0.4} width="0.2" height="0.2" fill="var(--c-line)" />
               ) : null,
             )}
           </g>
         ))}
-        {/* Jawa Tengah disorot tipis */}
-        <rect x="26" y="0" width="19" height={H} fill="var(--c-lemon)" opacity="0.05" />
-        <rect data-ping x={MX} y={MY} width="1" height="1" fill="var(--c-pink)" />
-        <rect x={MX} y={MY} width="1" height="1" fill="var(--c-pink)" />
-        <rect x={MX} y={MY - 4} width="0.15" height="3.5" fill="var(--c-pink)" />
+        <circle data-ping cx={MX + 0.5} cy={MY + 0.5} r="0.7" fill="var(--c-orange)" />
+        <circle cx={MX + 0.5} cy={MY + 0.5} r="0.7" fill="var(--c-orange)" stroke="var(--c-line)" strokeWidth="0.15" />
+        <path d={`M${MX + 0.5} ${MY - 0.3}V${MY - 4}`} stroke="var(--c-line)" strokeWidth="0.12" />
       </svg>
       <p
-        className="absolute font-display text-[0.6rem] text-pink md:text-xs"
-        style={{ left: `calc(${((MX + 1) / W) * 100}% + 4px)`, top: `calc(${((MY - 4) / H) * 100}% + 8px)` }}
+        className="absolute rounded-xs bg-blue px-1.5 py-0.5 text-[0.625rem] font-bold text-on-blue"
+        style={{ left: `calc(${((MX + 1) / W) * 100}% + 6px)`, top: `calc(${((MY - 4) / H) * 100}% + 6px)` }}
       >
         {site.location.city.toUpperCase()}
       </p>
-      <p className="mt-2 flex justify-between font-mono text-[0.6rem] uppercase tracking-widest text-mute">
-        <span>barat</span>
-        <span>pulau jawa</span>
-        <span>timur</span>
+      <p className="micro mt-3 flex justify-between text-mute">
+        <span>Barat</span>
+        <span>Pulau Jawa</span>
+        <span>Timur</span>
       </p>
     </div>
   );

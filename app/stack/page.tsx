@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { stack, levels } from "@/content/stack";
-import { AsciiDivider } from "@/components/ui/AsciiDivider";
 import { Reveal } from "@/components/ui/Reveal";
-import { Scramble } from "@/components/ui/Scramble";
+import { SectionHead } from "@/components/ui/SectionHead";
+import { PageHero } from "@/components/layout/PageHero";
 
 export const metadata: Metadata = {
   title: "Stack",
@@ -10,82 +10,80 @@ export const metadata: Metadata = {
 };
 
 const BLOCKS = "ABCDEFGH";
+// nomor berlanjut antar blok: M01, M02, …
+const OFFSETS = stack.map((_, gi) => stack.slice(0, gi).reduce((n, g) => n + g.items.length, 0));
+const TOTAL = stack.reduce((n, g) => n + g.items.length, 0);
 
-function Pips({ n }: { n: 1 | 2 | 3 }) {
+/** Indikator level 3 segmen — bukan persentase. */
+function Level({ pips }: { pips: 1 | 2 | 3 }) {
   return (
     <span className="flex gap-1" aria-hidden="true">
       {[1, 2, 3].map((k) => (
-        <span key={k} className={`h-3 w-3 ${k <= n ? (n === 3 ? "bg-pink" : n === 2 ? "bg-mint" : "bg-lemon") : "bg-line"}`} />
+        <span key={k} className={`h-2 w-6 rounded-pill ${k <= pips ? (pips === 3 ? "bg-blue" : pips === 2 ? "bg-ink" : "bg-orange") : "bg-surface-2"}`} />
       ))}
     </span>
   );
 }
 
-// nomor lagu berlanjut antar blok: M01, M02, …
-const OFFSETS = stack.map((_, gi) => stack.slice(0, gi).reduce((n, g) => n + g.items.length, 0));
-
 export default function StackPage() {
+  const total = String(TOTAL).padStart(2, "0");
   return (
-    <div className="gutter pb-section pt-28 md:pt-36">
-      {/* header: judul kiri, legenda level di kanan */}
-      <header className="grid gap-10 lg:grid-cols-[1fr_24rem] lg:items-end">
-        <div>
-          <p className="label">04 / stack</p>
-          <h1 className="mt-4 font-display text-[clamp(2.6rem,10vw,8.5rem)] leading-[0.88]">
-            <Scramble text="SETLIST" trigger="mount" />
-          </h1>
-          <p className="mt-6 max-w-xl text-paper/85">
-            Teknologi disusun seperti setlist konser: dikelompokkan per blok, diberi nomor lagu. Levelnya pakai tiga tingkat
-            — tanpa persentase, karena angka “87% React” itu tidak berarti apa-apa.
-          </p>
-        </div>
-        <dl className="px-border space-y-3 bg-panel p-5">
+    <>
+      <PageHero status="Loading setlist…" banner={total} bannerLabel={`Ilustrasi di dalam angka ${total}, jumlah teknologi`} mirror />
+
+      <section aria-labelledby="stack-title" className="page-wrap pt-section">
+        <SectionHead
+          as="h1"
+          id="stack-title"
+          title="Stack"
+          badge={`04 / 05 · ${total} TECH`}
+          meta="Disusun seperti setlist. Level tiga tingkat — tanpa persentase"
+        />
+
+        <dl className="mt-8 grid gap-3 sm:grid-cols-3">
           {levels.map((l) => (
-            <div key={l.id} className="grid grid-cols-[3.5rem_minmax(0,1fr)] items-start gap-3">
-              <dt className="pt-1">
-                <Pips n={l.pips} />
-                <span className="sr-only">{l.label}</span>
-              </dt>
-              <dd>
-                <span className="font-display text-sm">{l.label}</span>
-                <span className="block text-xs text-mute">{l.desc}</span>
-              </dd>
+            <div key={l.id} className="flex items-center justify-between gap-4 rounded-card border border-line px-4 py-3">
+              <div>
+                <dt className="text-sm font-extrabold">{l.label}</dt>
+                <dd className="text-xs text-mute">{l.desc}</dd>
+              </div>
+              <Level pips={l.pips} />
             </div>
           ))}
         </dl>
-      </header>
 
-      <div className="mt-section space-y-16">
-        {stack.map((group, gi) => (
-          <Reveal as="section" key={group.id} className="grid gap-6 lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-12" start="top 88%">
-            <div className="lg:sticky lg:top-24 lg:self-start">
-              <AsciiDivider index={`BLOK ${BLOCKS[gi]}`} label="" className="lg:hidden" />
-              <p className="hidden font-display text-6xl leading-none text-line lg:block">{BLOCKS[gi]}</p>
-              <h2 className="mt-4 font-display text-2xl md:text-3xl">{group.title}</h2>
-              <p className="mt-2 text-sm text-mute">{group.note}</p>
-            </div>
-            <ol className="divide-y divide-dashed divide-line border-y border-line">
-              {group.items.map((item, ii) => {
-                const track = OFFSETS[gi] + ii + 1;
-                const lvl = levels.find((l) => l.id === item.level)!;
-                return (
-                  <li key={item.name} data-reveal className="grid grid-cols-[3rem_minmax(0,1fr)] items-center gap-x-3 gap-y-1 py-4 sm:grid-cols-[3.5rem_1fr_auto] md:py-5">
-                    <span className="font-mono text-xs text-mute">M{String(track).padStart(2, "0")}</span>
-                    <span className="min-w-0">
-                      <span className="block font-display text-base leading-tight md:text-xl">{item.name}</span>
-                      <span className="block text-xs text-mute">{item.where}</span>
-                    </span>
-                    <span className="col-start-2 flex items-center gap-3 sm:col-start-3">
-                      <Pips n={lvl.pips} />
-                      <span className="font-mono text-[0.65rem] uppercase tracking-widest text-paper/80">{lvl.label}</span>
-                    </span>
-                  </li>
-                );
-              })}
-            </ol>
-          </Reveal>
-        ))}
-      </div>
-    </div>
+        <div className="mt-10 space-y-5">
+          {stack.map((group, gi) => (
+            <Reveal as="section" key={group.id} className="grid gap-5 rounded-card border border-line p-5 md:p-6 lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-10" start="top 88%">
+              <div className="lg:border-r lg:border-hair lg:pr-6">
+                <span className="rounded-xs bg-blue px-1.5 py-0.5 text-[0.6875rem] font-bold text-on-blue">BLOK {BLOCKS[gi]}</span>
+                <h2 className="mt-3 text-2xl font-extrabold tracking-tight">
+                  {group.title} <span className="text-mute">{"//"}</span>
+                </h2>
+                <p className="mt-1 text-sm text-mute">{group.note}</p>
+              </div>
+              <ol className="divide-y divide-hair">
+                {group.items.map((item, ii) => {
+                  const lvl = levels.find((l) => l.id === item.level)!;
+                  return (
+                    <li key={item.name} data-reveal className="grid grid-cols-[2.75rem_minmax(0,1fr)] items-center gap-x-3 gap-y-2 py-3 sm:grid-cols-[2.75rem_minmax(0,1fr)_auto]">
+                      <span className="micro tabular-nums text-mute">M{String(OFFSETS[gi] + ii + 1).padStart(2, "0")}</span>
+                      <span className="min-w-0">
+                        <span className="block truncate text-base font-bold tracking-tight md:text-lg">{item.name}</span>
+                        <span className="block truncate text-xs text-mute">{item.where}</span>
+                      </span>
+                      <span className="col-start-2 flex items-center gap-3 sm:col-start-3">
+                        <Level pips={lvl.pips} />
+                        <span className="micro w-24 text-ink/80">{lvl.label}</span>
+                      </span>
+                    </li>
+                  );
+                })}
+              </ol>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+    </>
   );
 }
