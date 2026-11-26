@@ -95,12 +95,13 @@ Biru dipakai untuk aksen/aktif, oranye khusus untuk hal yang butuh kredensial ad
 | Grafik rilis | kolom pixel per bulan tumbuh saat di-scroll |
 | Hub modul | baris berpindah posisi dengan Flip saat filter/urutan berubah |
 | Docs | TOC scroll-spy dengan bar penanda yang meluncur; tab kode crossfade; accordion FAQ dengan tinggi animasi |
+| Footer | wordmark pixel raksasa `JKT48/CORE` (canvas, font bitmap 5×7 buatan sendiri): pixel jatuh lalu merakit, terdorong kursor dan kembali dengan pegas, meledak saat klik/tap, berkedip biru; sitemap `footer.json` muncul per baris dengan penanda hover yang meluncur; bar status ala editor (indikator ready, posisi scroll, saklar animasi, ke atas) |
 | Angka | counter naik dari 0 |
 | Navigasi | transisi tile grid antar halaman; drawer mobile dengan item bertahap; smooth scroll Lenis (anchor `#method` ikut di-scroll halus) |
 
 Animasi selalu jalan secara default, **termasuk saat setting OS "reduce motion" aktif**. Di banyak desktop Windows
 (Settings → Accessibility → Visual effects → Animation effects mati) setting itu menyala tanpa disadari dan membuat
-situs terlihat mati. Sebagai gantinya ada tombol **Animasi on/off** di footer: pilihan disimpan di `localStorage`
+situs terlihat mati. Sebagai gantinya ada tombol **Animasi on/off** di bar status footer: pilihan disimpan di `localStorage`
 (`jkt48core:motion`), diterapkan oleh script `<head>` (`html[data-motion="off"]`), lalu halaman dimuat ulang. Saat
 off, semua konten tetap tampil penuh tanpa gerak.
 
@@ -122,7 +123,7 @@ components/
   client/                 TerminalDemo, ReleaseChart, InstallBar
   docs/                   DocsSidebar, Toc, MethodCard, Blocks (renderer blok konten)
   modules/                ModuleBrowser (hub + Flip), warna verb
-  site/                   TopBar, Footer, SearchDialog (⌘K / Ctrl+K / "/")
+  site/                   TopBar, Footer (+ footer/: PixelWordmark, FooterManifest, StatusBar), SearchDialog (⌘K / Ctrl+K / "/")
   transition/             TransitionProvider (tile grid) + TransitionLink
   ui/                     Icon, CodeBlock, CopyButton, InstallBox, Headline, Accordion, ThemeToggle, Wordmark, Reveal, Counter
 content/                  data (edit di sini)

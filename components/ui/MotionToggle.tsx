@@ -7,7 +7,7 @@ import { isReduced } from "@/lib/gsap";
 const noop = () => () => {};
 
 /** Saklar animasi situs. Pilihan disimpan lalu halaman dimuat ulang supaya semua timeline ikut. */
-export function MotionToggle({ className = "" }: { className?: string }) {
+export function MotionToggle({ className = "", bare = false }: { className?: string; bare?: boolean }) {
   const off = useSyncExternalStore(noop, isReduced, () => false);
   const toggle = () => {
     try {
@@ -24,9 +24,13 @@ export function MotionToggle({ className = "" }: { className?: string }) {
       type="button"
       onClick={toggle}
       aria-pressed={!off}
-      className={`micro inline-flex items-center gap-2 border border-line px-2.5 py-1.5 text-ink transition-colors duration-150 hover:border-strong ${className}`}
+      className={
+        bare
+          ? `inline-flex items-center gap-2 uppercase transition-opacity duration-150 hover:opacity-70 ${className}`
+          : `micro inline-flex items-center gap-2 border border-line px-2.5 py-1.5 text-ink transition-colors duration-150 hover:border-strong ${className}`
+      }
     >
-      <span aria-hidden="true" className={`h-2 w-2 ${off ? "bg-px3" : "animate-pulse bg-blue"}`} />
+      <span aria-hidden="true" className={`h-2 w-2 ${off ? "bg-px3" : bare ? "animate-pulse bg-on-button" : "animate-pulse bg-blue"}`} />
       Animasi {off ? "off" : "on"}
     </button>
   );
