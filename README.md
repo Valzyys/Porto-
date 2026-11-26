@@ -130,6 +130,20 @@ Kompatibilitas Workers:
 
 ---
 
+## Deploy ke Netlify (alternatif)
+
+Situs juga jalan di Netlify — live di **https://valzyy-porto.netlify.app** (project `valzyy-porto`).
+
+- `netlify.toml` memakai `npm run build:next` (bukan `npm run build`, yang khusus Cloudflare) dan publish `.next`.
+- Runtime Next.js Netlify (`@netlify/plugin-nextjs`) dideklarasikan di `netlify.toml`. Tanpa itu, deploy lewat
+  upload/API hanya mem-publish folder `.next` mentah dan semua halaman 404.
+- Netlify menyisipkan komentar HTML ke `<head>`. Script di `app/layout.tsx` menghapus komentar/spasi kosong itu sebelum
+  hydration; tanpa itu React gagal hydrate (#418) dan pilihan tema hilang setelah reload.
+- Untuk deploy otomatis tiap push: hubungkan repo di **Netlify → valzyy-porto → Project configuration → Build &
+  deploy → Link repository**. Build settings sudah dibaca dari `netlify.toml`.
+
+---
+
 ## Hasil build & verifikasi (terakhir dijalankan)
 
 | Cek | Hasil |

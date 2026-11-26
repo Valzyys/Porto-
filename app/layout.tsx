@@ -45,7 +45,13 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-const headScript = `document.documentElement.classList.add("js");${introHeadScript}${themeHeadScript}`;
+// Beberapa host (mis. Netlify) menyisipkan komentar HTML ke <head>. Node ekstra itu
+// membuat hydration React gagal (#418) lalu me-render ulang <html> dan membuang atribut
+// tema/intro. Hapus komentar (dan spasi kosong yang ikut disisipkan) di <head>
+// sebelum hydration.
+const stripHeadComments = `for(var n=document.head.firstChild;n;){var x=n.nextSibling;if(n.nodeType===8||(n.nodeType===3&&!n.textContent.trim()))n.remove();n=x}`;
+
+const headScript = `${stripHeadComments};document.documentElement.classList.add("js");${introHeadScript}${themeHeadScript}`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

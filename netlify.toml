@@ -1,0 +1,14 @@
+# Deploy ke Netlify (runtime Next.js via adapter OpenNext Netlify, zero-config).
+# `npm run build` di repo ini adalah build Cloudflare Workers, jadi Netlify
+# memakai `build:next` (next build biasa).
+[build]
+  command = "npm run build:next"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Runtime Next.js Netlify (OpenNext). Dideklarasikan eksplisit supaya ikut jalan
+# juga pada deploy lewat upload/API; versinya sengaja tidak dikunci.
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
