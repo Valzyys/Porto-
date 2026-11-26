@@ -33,7 +33,7 @@ export type Project = {
   proof: Proof[];
   featured: boolean;
   /** warna aksen kartu (nama token) */
-  accent: "pink" | "mint" | "lemon" | "peach";
+  accent: "blue" | "orange" | "peach" | "bar";
 };
 
 export const projects: Project[] = [
@@ -92,7 +92,7 @@ export const projects: Project[] = [
       },
     ],
     featured: true,
-    accent: "pink",
+    accent: "blue",
   },
   {
     slug: "jkt48connect-live",
@@ -133,7 +133,7 @@ simpan jti (TTL) ─▶ fetch origin ─▶ stream ke player`,
       { label: "Kode HLS proxy belum dipublikasikan", href: null, kind: "belum-publik" },
     ],
     featured: true,
-    accent: "mint",
+    accent: "orange",
   },
   {
     slug: "jkt48connect-payment",
@@ -156,7 +156,7 @@ simpan jti (TTL) ─▶ fetch origin ─▶ stream ke player`,
     ],
     proof: [{ label: "Sistem internal, belum ada tautan publik", href: null, kind: "belum-publik" }],
     featured: false,
-    accent: "lemon",
+    accent: "peach",
   },
   {
     slug: "jkt48connect-partnership",
@@ -184,7 +184,7 @@ simpan jti (TTL) ─▶ fetch origin ─▶ stream ke player`,
       },
     ],
     featured: false,
-    accent: "peach",
+    accent: "bar",
   },
   {
     slug: "jkt48connect-bots",
@@ -217,7 +217,7 @@ simpan jti (TTL) ─▶ fetch origin ─▶ stream ke player`,
   asyncio.Lock)   channel, PM fwd, PM Shop)`,
     proof: [{ label: "Akun & kode bot belum ditautkan", href: null, kind: "belum-publik" }],
     featured: false,
-    accent: "mint",
+    accent: "orange",
   },
   {
     slug: "harukaze48",
@@ -235,7 +235,7 @@ simpan jti (TTL) ─▶ fetch origin ─▶ stream ke player`,
     challenges: ["Menjaga kontrol akses tetap sederhana untuk admin, tapi tidak mudah dibobol."],
     proof: [{ label: "URL publik belum dikonfirmasi", href: null, kind: "belum-publik" }],
     featured: true,
-    accent: "peach",
+    accent: "bar",
   },
   {
     slug: "cavallery",
@@ -255,7 +255,7 @@ simpan jti (TTL) ─▶ fetch origin ─▶ stream ke player`,
     challenges: ["Menggabungkan konten CMS dengan data jadwal/live yang terus berubah."],
     proof: [{ label: "cavallery.id", href: "https://cavallery.id", kind: "publik" }],
     featured: false,
-    accent: "lemon",
+    accent: "peach",
   },
   {
     slug: "jkt48connect-mobile",
@@ -279,7 +279,7 @@ simpan jti (TTL) ─▶ fetch origin ─▶ stream ke player`,
       { label: "Link toko aplikasi belum ada", href: null, kind: "belum-publik" },
     ],
     featured: true,
-    accent: "pink",
+    accent: "blue",
   },
   {
     slug: "jkt48-core",
@@ -300,7 +300,7 @@ simpan jti (TTL) ─▶ fetch origin ─▶ stream ke player`,
       { label: "github.com/JKT48Connect/jkt48-core", href: "https://github.com/JKT48Connect/jkt48-core", kind: "publik" },
     ],
     featured: false,
-    accent: "mint",
+    accent: "orange",
   },
 ];
 

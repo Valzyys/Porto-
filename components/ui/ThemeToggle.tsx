@@ -1,44 +1,39 @@
 "use client";
 
 import { setTheme, useTheme } from "@/lib/theme";
-import { PixelIcon } from "@/components/pixel/PixelIcon";
+import { Icon } from "@/components/ui/Icon";
 
 /**
- * Tombol ganti tema terang/gelap. `floating` = versi kecil di pojok kanan atas;
- * tanpa `floating` = versi lebar untuk di dalam menu HUD.
+ * Toggle tema tersegmen ala referensi: wadah gelap, dua tombol (bulan/matahari),
+ * segmen aktif terangkat. Dua tombol nyata (radio group) supaya aksesibel.
  */
-export function ThemeToggle({ floating = false }: { floating?: boolean }) {
+export function ThemeToggle() {
   const theme = useTheme();
-  const next = theme === "dark" ? "light" : "dark";
-  const label = next === "light" ? "Ganti ke tema terang" : "Ganti ke tema gelap";
-
-  if (floating) {
-    return (
-      <button
-        type="button"
-        onClick={() => setTheme(next)}
-        aria-label={label}
-        title={label}
-        data-cursor={next === "light" ? "LIGHT" : "DARK"}
-        className="fixed right-[var(--s-gutter)] top-3 z-hud flex h-9 items-center gap-2 border border-line bg-ink/80 px-3 text-paper backdrop-blur-sm transition-colors duration-[var(--dur-fast)] hover:border-paper"
-      >
-        <PixelIcon name={theme === "dark" ? "moon" : "sun"} size={14} />
-        <span className="font-mono text-[0.65rem] uppercase tracking-widest" suppressHydrationWarning>
-          {theme === "dark" ? "gelap" : "terang"}
-        </span>
-      </button>
-    );
-  }
+  const options = [
+    { id: "dark" as const, icon: "moon" as const, label: "Tema gelap", tint: "text-blue-ink" },
+    { id: "light" as const, icon: "sun" as const, label: "Tema terang", tint: "text-orange" },
+  ];
 
   return (
-    <button
-      type="button"
-      onClick={() => setTheme(next)}
-      aria-label={label}
-      className="flex items-center gap-2 border border-line px-3 py-2 font-mono text-xs uppercase tracking-widest text-paper hover:border-paper"
-    >
-      <PixelIcon name={theme === "dark" ? "moon" : "sun"} size={14} />
-      <span suppressHydrationWarning>tema: {theme === "dark" ? "gelap" : "terang"}</span>
-    </button>
+    <div role="radiogroup" aria-label="Tema" className="flex h-10 items-stretch gap-1 rounded-inner bg-bar p-1">
+      {options.map((o) => {
+        const active = theme === o.id;
+        return (
+          <button
+            key={o.id}
+            type="button"
+            role="radio"
+            aria-checked={active}
+            aria-label={o.label}
+            onClick={() => setTheme(o.id)}
+            className={`grid w-12 place-items-center rounded-xs transition-colors duration-150 ${
+              active ? "border border-line bg-surface shadow-sm" : "hover:bg-on-bar/10"
+            }`}
+          >
+            <Icon name={o.icon} size={18} className={o.tint} />
+          </button>
+        );
+      })}
+    </div>
   );
 }

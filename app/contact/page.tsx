@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { contacts, site } from "@/content/site";
-import { Scramble } from "@/components/ui/Scramble";
-import { Reveal } from "@/components/ui/Reveal";
-import { PixelIcon, type IconName } from "@/components/pixel/PixelIcon";
+import { Icon, type IconName } from "@/components/ui/Icon";
+import { ChatLog, type ChatItem } from "@/components/ui/ChatLog";
 import { CopyButton } from "@/components/ui/CopyButton";
+import { SectionHead } from "@/components/ui/SectionHead";
+import { PageHero } from "@/components/layout/PageHero";
+import { Reveal } from "@/components/ui/Reveal";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -15,70 +17,81 @@ const ICON: Record<string, IconName> = {
   "github-org": "code",
   npm: "box",
   email: "mail",
-  telegram: "plane",
+  telegram: "send",
 };
+
+const verified = contacts.filter((c) => c.href && c.value);
+
+/** Kontak disajikan sebagai obrolan, plus daftar lengkap di bawahnya. */
+const conversation: ChatItem[] = [
+  { key: "q1", from: "visitor", content: "Mau ngobrol soal proyek, lewat mana?" },
+  { key: "a1", from: "valzyy", content: "GitHub paling cepat dicek." },
+  ...verified.map<ChatItem>((c) => ({
+    key: c.id,
+    from: "valzyy",
+    content: (
+      <a href={c.href!} target="_blank" rel="noreferrer" className="underline decoration-1 underline-offset-2 [overflow-wrap:anywhere]">
+        {c.label}: {c.value} <Icon name="arrowUpRight" size={12} className="inline align-[-2px]" />
+        <span className="sr-only">(tab baru)</span>
+      </a>
+    ),
+  })),
+  { key: "q2", from: "visitor", content: "Email? Telegram?" },
+  { key: "a2", from: "valzyy", content: "Belum dipublikasikan — segera." },
+  { key: "sys", from: "system", content: "— tidak ada form di sini: situs ini tidak punya backend —" },
+];
 
 export default function ContactPage() {
   return (
-    <div className="gutter pb-section pt-28 md:pt-36">
-      <div className="grid gap-12 lg:grid-cols-[1fr_minmax(0,40rem)] lg:gap-16">
-        <header>
-          <p className="label">05 / contact</p>
-          <h1 className="mt-4 font-display text-[clamp(3rem,13vw,10rem)] leading-[0.85]">
-            <Scramble text="ENCORE" trigger="mount" className="block" />
-            <span className="block text-pink">!</span>
-          </h1>
-          <p className="mt-6 max-w-md text-paper/85">
-            Tidak ada form di sini — situs ini tidak punya backend. Pakai salah satu jalur di daftar ini. GitHub paling cepat
-            dicek.
-          </p>
-          <p className="mt-6 flex items-center gap-2 text-xs text-mute">
-            <PixelIcon name="pin" size={12} className="text-pink" />
-            {site.location.city}, {site.location.province} · {site.location.tzLabel}
-          </p>
-        </header>
+    <>
+      <PageHero status="Opening channel…" banner="HI!" bannerLabel="Ilustrasi di dalam tulisan HI!" tone="orange" mirror />
 
-        {/* jendela terminal berisi daftar kontak */}
-        <section aria-labelledby="contact-list" className="px-border self-start bg-panel">
-          <div className="flex items-center justify-between border-b border-line px-4 py-2 font-mono text-[0.65rem] uppercase tracking-widest text-mute">
-            <span id="contact-list">~/contacts</span>
-            <span>{contacts.length} entri</span>
+      <section aria-labelledby="contact-title" className="page-wrap pt-section">
+        <SectionHead
+          as="h1"
+          id="contact-title"
+          title="Contact"
+          badge="05 / 05"
+          meta={`${site.location.city}, ${site.location.province} · ${site.location.tzLabel}`}
+        />
+
+        <div className="mt-10 grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
+          <div className="rounded-card border border-line p-5 md:p-6">
+            <p className="micro mb-4 flex items-center justify-between text-mute">
+              <span>Chat // {site.name}</span>
+              <span className="flex items-center gap-1.5">
+                <span className="blink h-2 w-2 rounded-pill bg-blue" /> Contoh obrolan
+              </span>
+            </p>
+            <ChatLog label="Obrolan kontak" items={conversation} />
           </div>
-          <Reveal as="ul" className="divide-y divide-line">
+
+          <Reveal as="ul" className="divide-y divide-hair self-start rounded-card border border-line">
             {contacts.map((c) => (
-              <li key={c.id} data-reveal className="p-4 md:p-5">
-                <p className="text-xs text-mute">
-                  <span className="text-mint">$</span> open {c.id}
-                </p>
-                <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
-                  <span className="flex min-w-0 items-center gap-3">
-                    <PixelIcon name={ICON[c.id] ?? "external"} size={20} className={c.verified ? "text-lemon" : "text-line"} />
-                    <span className="min-w-0">
-                      <span className="label block">{c.label}</span>
-                      {c.href && c.value ? (
-                        <a
-                          href={c.href}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="break-all font-display text-base hover:text-pink md:text-lg"
-                          data-cursor="OPEN"
-                        >
-                          {c.value}
-                          <span className="sr-only"> (tab baru)</span>
-                        </a>
-                      ) : (
-                        <span className="font-display text-base text-mute md:text-lg">[ belum diisi ]</span>
-                      )}
-                    </span>
+              <li key={c.id} data-reveal className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
+                <span className="flex min-w-0 items-center gap-3">
+                  <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-pill border border-line ${c.verified ? "bg-blue text-on-blue" : "text-mute"}`}>
+                    <Icon name={ICON[c.id] ?? "arrowUpRight"} size={16} />
                   </span>
-                  {c.href && <CopyButton value={c.href} label={`Salin tautan ${c.label}`} />}
-                </div>
-                <p className="mt-2 text-xs text-mute">{c.note}</p>
+                  <span className="min-w-0">
+                    <span className="micro block text-mute">{c.label}</span>
+                    {c.href && c.value ? (
+                      <a href={c.href} target="_blank" rel="noreferrer" className="block truncate text-base font-extrabold tracking-tight hover:text-blue-ink">
+                        {c.value}
+                        <span className="sr-only"> (tab baru)</span>
+                      </a>
+                    ) : (
+                      <span className="block text-base font-bold text-mute">[ belum diisi ]</span>
+                    )}
+                    <span className="block truncate text-xs text-mute">{c.note}</span>
+                  </span>
+                </span>
+                {c.href && <CopyButton value={c.href} label={`Salin tautan ${c.label}`} />}
               </li>
             ))}
           </Reveal>
-        </section>
-      </div>
-    </div>
+        </div>
+      </section>
+    </>
   );
 }

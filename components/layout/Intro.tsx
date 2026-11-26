@@ -5,28 +5,23 @@ import { gsap, useGSAP } from "@/lib/gsap";
 import { motion } from "@/design/tokens";
 import { introStore, readIntroSeen, writeIntroSeen } from "@/lib/stores";
 import { site } from "@/content/site";
-import { blockText } from "@/lib/ascii";
 import { lockScroll } from "@/components/providers/SmoothScroll";
 import { usePageTransition } from "@/components/transition/TransitionProvider";
+import { Icon, LogoMark } from "@/components/ui/Icon";
 
-const SEGMENTS = 24;
-const NAME = blockText("VALZYY", "█", "·");
-
-const BOOT_LINES: [string, string][] = [
-  ["VZY-BIOS 2.6 · stage controller", ""],
-  ["> power on lighting rig", "ok"],
-  ["> load penlight palette [pink mint lemon peach]", "ok"],
-  ["> mount /edge (cloudflare-workers)", "ok"],
-  ["> calibrate spotlight → cursor", "ok"],
-  [`> locate ${site.location.city.toLowerCase()}, ${site.location.province.toLowerCase()}`, `${site.location.lat}, ${site.location.lon}`],
-  ["> cue performer: VALZYY", "ready"],
+/** Baris status yang bergantian di bawah kartu (bukan klaim, hanya suasana boot). */
+const STEPS = [
+  "mount /edge (cloudflare-workers)",
+  "load palette [blue · orange · peach]",
+  `locate ${site.location.city.toLowerCase()}, ${site.location.province.toLowerCase()}`,
+  `cue performer: ${site.name.toLowerCase()}`,
 ];
 
 /**
- * Boot sequence ASCII ~2.6 detik → tirai tile membuka hero.
- * Tampil sekali per sesi (sessionStorage), bisa di-skip dengan klik/tombol/keyboard.
- * Overlay ikut dirender di server supaya tidak ada kedipan konten sebelum intro;
- * script di <head> menyembunyikannya kalau sudah pernah tampil.
+ * Loader pertama: kartu "Loading…" ala referensi (persen, bar, sisa detik),
+ * lalu tirai tile membuka halaman. Tampil sekali per sesi, bisa di-skip.
+ * Overlay ikut dirender di server; script <head> menyembunyikannya kalau
+ * sudah pernah tampil supaya tidak berkedip.
  */
 export function Intro() {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -46,10 +41,19 @@ export function Intro() {
       const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       lockScroll(true);
 
-      const lines = gsap.utils.toArray<HTMLElement>("[data-line]", root);
-      const segs = gsap.utils.toArray<HTMLElement>("[data-seg]", root);
+      const fill = root.querySelector<HTMLElement>("[data-fill]");
       const pct = root.querySelector<HTMLElement>("[data-pct]");
+      const left = root.querySelector<HTMLElement>("[data-left]");
+      const step = root.querySelector<HTMLElement>("[data-step]");
+      const card = root.querySelector<HTMLElement>("[data-card]");
       let finished = false;
+
+      const render = (p: number) => {
+        if (fill) fill.style.transform = `scaleX(${p})`;
+        if (pct) pct.textContent = `${Math.round(p * 100)}%`;
+        if (left) left.textContent = `${Math.max(0, Math.ceil(motion.dur.intro * (1 - p)))} sec left`;
+        if (step) step.textContent = `> ${STEPS[Math.min(STEPS.length - 1, Math.floor(p * STEPS.length))]}`;
+      };
 
       const finish = () => {
         if (finished) return;
@@ -58,13 +62,7 @@ export function Intro() {
         writeIntroSeen();
         lockScroll(false);
         if (reduced) {
-          gsap.to(root, {
-            autoAlpha: 0,
-            duration: motion.dur.base,
-            onComplete: () => {
-              gsap.set(root, { display: "none" });
-            },
-          });
+          gsap.to(root, { autoAlpha: 0, duration: motion.dur.base, onComplete: () => void gsap.set(root, { display: "none" }) });
         } else {
           revealFromCovered();
           gsap.set(root, { display: "none" });
@@ -75,46 +73,13 @@ export function Intro() {
 
       const progress = { v: 0 };
       const tl = gsap.timeline({ onComplete: finish });
-
       if (reduced) {
-        gsap.set(lines, { autoAlpha: 1 });
-        gsap.set(segs, { backgroundColor: "var(--c-mint)" });
-        if (pct) pct.textContent = "100";
-        tl.to({}, { duration: 0.9 });
+        render(1);
+        tl.to({}, { duration: 0.8 });
       } else {
-        const step = (motion.dur.intro - 0.4) / lines.length;
-        lines.forEach((line, i) => {
-          tl.fromTo(
-            line,
-            { autoAlpha: 0, clipPath: "inset(0 100% 0 0)" },
-            { autoAlpha: 1, clipPath: "inset(0 0% 0 0)", duration: step * 0.7, ease: "steps(12)" },
-            i * step,
-          );
-        });
-        tl.to(
-          progress,
-          {
-            v: 1,
-            duration: motion.dur.intro,
-            ease: "power1.inOut",
-            onUpdate: () => {
-              const filled = Math.round(progress.v * SEGMENTS);
-              segs.forEach((s, i) => {
-                s.dataset.on = i < filled ? "1" : "0";
-              });
-              if (pct) pct.textContent = String(Math.round(progress.v * 100)).padStart(3, "0");
-            },
-          },
-          0,
-        );
-        tl.fromTo(
-          "[data-name]",
-          { clipPath: "inset(0 100% 0 0)" },
-          { clipPath: "inset(0 0% 0 0)", duration: 0.5, ease: "steps(10)", stagger: 0.12 },
-          0.2,
-        );
-        tl.to("[data-name]", { color: "var(--c-pink)", duration: 0.1, stagger: 0.05 }, motion.dur.intro - 0.6);
-        tl.to({}, { duration: 0.25 });
+        tl.fromTo(card, { y: 24, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: motion.dur.base, ease: motion.ease.out });
+        tl.to(progress, { v: 1, duration: motion.dur.intro, ease: "power1.inOut", onUpdate: () => render(progress.v) }, 0.1);
+        tl.to(card, { scale: 0.96, autoAlpha: 0, duration: motion.dur.fast, ease: motion.ease.in });
       }
 
       const onKey = (e: KeyboardEvent) => {
@@ -146,61 +111,38 @@ export function Intro() {
       data-intro
       role="dialog"
       aria-modal="true"
-      aria-label="Intro: boot sequence"
-      className="fixed inset-0 z-intro flex cursor-pointer flex-col justify-between bg-ink gutter py-6 text-paper md:py-10"
+      aria-label="Memuat situs"
+      className="fixed inset-0 z-intro flex cursor-pointer flex-col items-center justify-center gap-6 bg-canvas px-gutter text-ink"
     >
-      <div className="flex items-start justify-between gap-4 text-xs text-mute">
-        <span className="font-mono tracking-widest">VZY://BOOT</span>
-        <button
-          type="button"
-          className="px-border bg-stage px-3 py-2 font-display text-[0.7rem] text-lemon"
-          onClick={(e) => e.currentTarget.blur()}
-        >
-          SKIP [ESC]
+      <div className="absolute inset-x-0 top-0 flex items-center justify-between px-gutter py-5">
+        <LogoMark size={32} />
+        <button type="button" className="micro rounded-pill border border-line px-3 py-1.5 hover:bg-ink hover:text-canvas" onClick={(e) => e.currentTarget.blur()}>
+          Skip [Esc]
         </button>
       </div>
 
-      {/* nama blok ASCII besar di sisi kanan (desktop) */}
-      <pre
-        aria-hidden="true"
-        className="pointer-events-none absolute right-[var(--s-gutter)] top-1/2 hidden -translate-y-1/2 text-[1.05vw] leading-[1.05] text-line lg:block"
-      >
-        {NAME.map((row, i) => (
-          <span key={i} data-name className="block">
-            {row}
-          </span>
-        ))}
-      </pre>
-
-      <pre className="max-w-full overflow-hidden whitespace-pre-wrap break-words text-[0.72rem] leading-6 sm:text-sm sm:leading-7">
-        {BOOT_LINES.map(([cmd, res], i) => (
-          <span key={i} data-line className="flex gap-3 [html.js_&]:opacity-0">
-            <span className={i === 0 ? "text-pink" : "text-paper"}>{cmd}</span>
-            {res && <span className="ml-auto shrink-0 text-mint">[{res}]</span>}
-          </span>
-        ))}
-      </pre>
-
-      <div>
-        <div className="mb-2 flex items-baseline justify-between font-display text-xs">
-          <span className="text-mute">LOADING STAGE</span>
-          <span>
-            <span data-pct>000</span>%
-          </span>
+      <div data-card className="w-full max-w-xl rounded-card border border-line bg-canvas px-5 py-4 md:px-8 md:py-5">
+        <div className="flex items-baseline justify-between gap-4">
+          <p className="text-[0.9375rem] text-mute">Loading portfolio…</p>
+          <p data-pct className="text-sm tabular-nums">
+            0%
+          </p>
         </div>
-        <div className="grid gap-1" style={{ gridTemplateColumns: `repeat(${SEGMENTS}, 1fr)` }} aria-hidden="true">
-          {Array.from({ length: SEGMENTS }, (_, i) => (
-            <span
-              key={i}
-              data-seg
-              data-on="0"
-              className="h-4 bg-panel data-[on='1']:bg-mint md:h-5"
-              style={{ transitionDuration: "0s" }}
-            />
-          ))}
+        <div className="mt-3 h-2 overflow-hidden rounded-pill bg-surface-2" aria-hidden="true">
+          <div data-fill className="h-full origin-left rounded-pill bg-mute" style={{ transform: "scaleX(0)" }} />
         </div>
-        <p className="mt-3 text-[0.7rem] text-mute">klik di mana saja atau tekan Enter / Esc untuk lewati</p>
+        <p className="mt-3 flex items-center gap-2 text-xs text-mute">
+          <Icon name="clock" size={14} />
+          <span data-left className="tabular-nums">
+            {Math.ceil(motion.dur.intro)} sec left
+          </span>
+        </p>
       </div>
+
+      <p data-step className="w-full max-w-xl truncate font-mono text-[0.6875rem] text-mute" aria-hidden="true">
+        &gt; {STEPS[0]}
+      </p>
+      <p className="micro absolute bottom-6 text-mute">klik di mana saja atau tekan Enter / Esc untuk lewati</p>
     </div>
   );
 }

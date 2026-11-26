@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { projects, getProject } from "@/content/projects";
-import { AsciiDivider } from "@/components/ui/AsciiDivider";
 import { Reveal } from "@/components/ui/Reveal";
-import { Scramble } from "@/components/ui/Scramble";
-import { PixelIcon } from "@/components/pixel/PixelIcon";
+import { Icon } from "@/components/ui/Icon";
+import { SectionHead } from "@/components/ui/SectionHead";
+import { SlashBar } from "@/components/ui/SlashBar";
+import { PageHero } from "@/components/layout/PageHero";
 import { TransitionLink } from "@/components/transition/TransitionLink";
 
 // Semua slug di-prerender saat build; slug lain → 404 tanpa beban runtime.
@@ -21,137 +22,152 @@ export async function generateMetadata({ params }: PageProps<"/projects/[slug]">
   return { title: p.name, description: p.tagline };
 }
 
-const ACCENT = { pink: "text-pink", mint: "text-mint", lemon: "text-lemon", peach: "text-peach" } as const;
+function Block({ title, index, children }: { title: string; index: string; children: React.ReactNode }) {
+  return (
+    <Reveal as="section" className="flex flex-col gap-4 rounded-card border border-line p-5 md:p-6">
+      <div data-reveal className="flex items-center justify-between gap-3 border-b border-hair pb-3">
+        <h2 className="text-lg font-extrabold tracking-tight">
+          {title} <span className="text-mute">{"//"}</span>
+        </h2>
+        <span className="micro tabular-nums text-mute">{index}</span>
+      </div>
+      {children}
+    </Reveal>
+  );
+}
 
 export default async function ProjectPage({ params }: PageProps<"/projects/[slug]">) {
   const { slug } = await params;
   const p = getProject(slug);
   if (!p) notFound();
   const i = projects.indexOf(p);
+  const num = String(i + 1).padStart(2, "0");
   const prev = projects[(i - 1 + projects.length) % projects.length];
   const next = projects[(i + 1) % projects.length];
 
   return (
-    <article aria-labelledby="project-title" className="pb-section">
-      <header className="gutter pt-28 md:pt-36">
-        <TransitionLink href="/projects" className="inline-flex items-center gap-2 text-xs text-mute hover:text-lemon" data-cursor="BACK">
-          <PixelIcon name="arrow" size={12} className="rotate-180" /> semua proyek
+    <article aria-labelledby="project-title">
+      <PageHero status={`Opening ${p.name}…`} banner={num} bannerLabel={`Ilustrasi di dalam angka ${num}`} tone={i % 2 ? "orange" : "blue"} mirror={i % 2 === 1} />
+
+      <div className="page-wrap pt-section">
+        <TransitionLink href="/projects" className="micro mb-6 inline-flex items-center gap-1.5 text-mute hover:text-ink">
+          <Icon name="arrowLeft" size={14} /> Semua proyek
         </TransitionLink>
-        <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_22rem] lg:items-end">
-          <div className="min-w-0">
-            <p className={`font-display text-sm ${ACCENT[p.accent]}`}>
-              #{String(i + 1).padStart(2, "0")} / {String(projects.length).padStart(2, "0")}
-            </p>
-            <h1 id="project-title" className="wrap-any mt-3 font-display text-[clamp(2rem,7vw,5.5rem)] leading-[0.92]">
-              <Scramble text={p.name} trigger="mount" duration={1} />
-            </h1>
-            <p className="mt-6 max-w-2xl text-paper/85 md:text-lg">{p.tagline}</p>
-          </div>
-          <dl className="px-border grid grid-cols-[6rem_minmax(0,1fr)] gap-x-4 gap-y-3 bg-panel p-5 text-sm">
-            <dt className="label">peran</dt>
-            <dd>{p.role}</dd>
-            <dt className="label">tahun</dt>
-            <dd>{p.year ?? "— (belum terverifikasi)"}</dd>
-            <dt className="label">kategori</dt>
-            <dd className="flex flex-wrap gap-1">
-              {p.categories.map((c) => (
-                <span key={c} className="chip">
-                  {c}
-                </span>
-              ))}
-            </dd>
+        <SectionHead as="h1" id="project-title" title={p.name} badge={`M${num} / ${String(projects.length).padStart(2, "0")}`} meta={p.categories.join(" · ")} />
+
+        <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem]">
+          <p className="text-[clamp(1.25rem,2.4vw,1.75rem)] font-semibold leading-snug tracking-tight">{p.tagline}</p>
+          <dl className="divide-y divide-hair rounded-card border border-line">
+            {[
+              ["Peran", p.role],
+              ["Tahun", p.year ?? "— (belum terverifikasi)"],
+              ["Kategori", p.categories.join(", ")],
+            ].map(([k, v]) => (
+              <div key={k} className="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-3 px-4 py-2.5">
+                <dt className="micro pt-0.5 text-mute">{k}</dt>
+                <dd className="text-sm font-semibold">{v}</dd>
+              </div>
+            ))}
           </dl>
         </div>
-      </header>
 
-      <div className="gutter mt-section grid gap-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-20">
-        <Reveal as="section" className="space-y-5">
-          <AsciiDivider index="01" label="problem" />
-          <p data-reveal className="font-display text-xl font-semibold leading-snug md:text-3xl">
-            {p.problem}
-          </p>
-        </Reveal>
+        <div className="mt-10 grid gap-5 lg:grid-cols-2">
+          <Block title="Problem" index="01">
+            <p data-reveal className="text-lg font-semibold leading-snug">
+              {p.problem}
+            </p>
+          </Block>
+          <Block title="Solusi" index="02">
+            <ol className="space-y-3">
+              {p.solution.map((s, k) => (
+                <li key={k} data-reveal className="grid grid-cols-[2rem_minmax(0,1fr)] gap-2 text-sm">
+                  <span className="micro rounded-xs bg-blue px-1 py-0.5 text-center tabular-nums text-on-blue">{String(k + 1).padStart(2, "0")}</span>
+                  <span>{s}</span>
+                </li>
+              ))}
+            </ol>
+          </Block>
+        </div>
 
-        <Reveal as="section" className="space-y-5">
-          <AsciiDivider index="02" label="solusi" />
-          <ol className="space-y-4">
-            {p.solution.map((s, k) => (
-              <li key={k} data-reveal className="grid grid-cols-[2.5rem_minmax(0,1fr)] gap-2">
-                <span className={`font-display text-sm ${ACCENT[p.accent]}`}>{String(k + 1).padStart(2, "0")}</span>
-                <span className="text-paper/90">{s}</span>
-              </li>
-            ))}
-          </ol>
-        </Reveal>
-      </div>
-
-      {p.diagram && (
-        <section aria-label="Diagram alur" className="mt-section bg-stage py-16">
-          <div className="gutter">
-            <AsciiDivider index="03" label="alur sistem" />
-            <div className="mt-8 overflow-x-auto">
-              <pre className="w-max text-[0.7rem] leading-[1.45] text-mint sm:text-sm" role="img" aria-label={`Diagram ASCII alur sistem ${p.name}`}>
+        {p.diagram && (
+          <Reveal as="section" className="mt-5 rounded-card border border-line bg-surface p-5 md:p-6">
+            <p data-reveal className="micro mb-4 text-mute">
+              03 // Alur sistem
+            </p>
+            <div className="overflow-x-auto">
+              <pre data-reveal className="w-max text-[0.6875rem] leading-[1.5] text-blue-ink sm:text-sm" role="img" aria-label={`Diagram alur sistem ${p.name}`}>
                 {p.diagram}
               </pre>
             </div>
-          </div>
-        </section>
-      )}
+          </Reveal>
+        )}
 
-      <div className="gutter mt-section grid gap-16 lg:grid-cols-[repeat(3,minmax(0,1fr))]">
-        <Reveal as="section" className="space-y-5 lg:col-span-2">
-          <AsciiDivider index="04" label="tantangan teknis" />
-          <ul className="space-y-4">
-            {p.challenges.map((c, k) => (
-              <li key={k} data-reveal className="flex gap-3 border-l-4 border-line pl-4 text-paper/90">
-                {c}
-              </li>
-            ))}
-          </ul>
-        </Reveal>
-        <Reveal as="section" className="space-y-5">
-          <AsciiDivider index="05" label="stack" />
-          <ul className="flex flex-wrap gap-2">
-            {p.stack.map((s) => (
-              <li key={s} data-reveal className="chip">
-                {s}
-              </li>
-            ))}
-          </ul>
-        </Reveal>
+        <div className="mt-5 grid gap-5 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+          <Block title="Tantangan teknis" index="04">
+            <ul className="space-y-3">
+              {p.challenges.map((c, k) => (
+                <li key={k} data-reveal className="flex gap-3 text-sm">
+                  <Icon name="spark" size={14} className="mt-0.5 shrink-0 text-orange" />
+                  {c}
+                </li>
+              ))}
+            </ul>
+          </Block>
+          <Block title="Stack" index="05">
+            <ul className="flex flex-wrap gap-1.5">
+              {p.stack.map((s) => (
+                <li key={s} data-reveal className="micro rounded-pill border border-line px-2.5 py-1">
+                  {s}
+                </li>
+              ))}
+            </ul>
+          </Block>
+        </div>
+
+        <div className="mt-5">
+          <Block title="Bukti yang bisa dicek" index="06">
+            <ul className="grid gap-2 md:grid-cols-2">
+              {p.proof.map((pr) => (
+                <li key={pr.label} data-reveal className="flex items-start justify-between gap-4 rounded-inner bg-surface px-4 py-3 text-sm">
+                  {pr.href ? (
+                    <a href={pr.href} target="_blank" rel="noreferrer" className="min-w-0 font-semibold underline decoration-blue decoration-2 underline-offset-4 hover:text-blue-ink">
+                      {pr.label}
+                      <span className="sr-only"> (tab baru)</span>
+                    </a>
+                  ) : (
+                    <span className="min-w-0 text-mute">{pr.label}</span>
+                  )}
+                  <span className={`micro shrink-0 rounded-xs px-1.5 py-0.5 ${pr.kind === "publik" ? "bg-blue text-on-blue" : "bg-surface-2 text-mute"}`}>
+                    {pr.kind === "publik" ? "Publik" : "Belum publik"}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </Block>
+        </div>
+
+        <nav aria-label="Proyek lain" className="mt-10">
+          <SlashBar>
+            <div className="grid sm:grid-cols-2">
+              <TransitionLink href={`/projects/${prev.slug}`} className="group flex flex-col gap-1 px-5 py-5 hover:bg-on-bar/5 md:px-8">
+                <span className="micro flex items-center gap-1 text-on-bar-mute">
+                  <Icon name="arrowLeft" size={12} /> Sebelumnya
+                </span>
+                <span className="text-lg font-extrabold tracking-tight group-hover:text-blue-ink">{prev.name}</span>
+              </TransitionLink>
+              <TransitionLink
+                href={`/projects/${next.slug}`}
+                className="group flex flex-col items-end gap-1 border-t border-on-bar/15 px-5 py-5 text-right hover:bg-on-bar/5 sm:border-l sm:border-t-0 md:px-8"
+              >
+                <span className="micro flex items-center gap-1 text-on-bar-mute">
+                  Berikutnya <Icon name="arrowRight" size={12} />
+                </span>
+                <span className="text-lg font-extrabold tracking-tight group-hover:text-blue-ink">{next.name}</span>
+              </TransitionLink>
+            </div>
+          </SlashBar>
+        </nav>
       </div>
-
-      <Reveal as="section" className="gutter mt-section space-y-5">
-        <AsciiDivider index="06" label="bukti yang bisa dicek" />
-        <ul className="grid gap-3 md:grid-cols-2">
-          {p.proof.map((pr) => (
-            <li key={pr.label} data-reveal className="flex items-start justify-between gap-4 bg-stage p-4 text-sm">
-              {pr.href ? (
-                <a href={pr.href} target="_blank" rel="noreferrer" className="underline decoration-pink decoration-2 underline-offset-4 hover:text-pink" data-cursor="LINK">
-                  {pr.label}
-                  <span className="sr-only"> (tab baru)</span>
-                </a>
-              ) : (
-                <span className="text-mute">{pr.label}</span>
-              )}
-              <span className={`shrink-0 font-mono text-[0.6rem] uppercase tracking-widest ${pr.kind === "publik" ? "text-mint" : "text-peach"}`}>
-                {pr.kind === "publik" ? "publik" : "belum publik"}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </Reveal>
-
-      <nav aria-label="Proyek lain" className="gutter mt-section grid gap-3 sm:grid-cols-2">
-        <TransitionLink href={`/projects/${prev.slug}`} className="group bg-stage p-5 hover:bg-panel" data-cursor="PREV">
-          <span className="label">← sebelumnya</span>
-          <span className="mt-2 block font-display text-lg group-hover:text-lemon">{prev.name}</span>
-        </TransitionLink>
-        <TransitionLink href={`/projects/${next.slug}`} className="group bg-stage p-5 text-right hover:bg-panel" data-cursor="NEXT">
-          <span className="label">berikutnya →</span>
-          <span className="mt-2 block font-display text-lg group-hover:text-lemon">{next.name}</span>
-        </TransitionLink>
-      </nav>
     </article>
   );
 }

@@ -3,13 +3,13 @@
 import { useSyncExternalStore } from "react";
 import { THEME_KEY, type Theme } from "@/design/tokens";
 
-const LIGHT_MQ = "(prefers-color-scheme: light)";
+const DARK_MQ = "(prefers-color-scheme: dark)";
 
 /** Tema efektif: pilihan manual (data-theme) kalau ada, kalau tidak ikut sistem. */
 export function currentTheme(): Theme {
   const t = document.documentElement.dataset.theme;
   if (t === "light" || t === "dark") return t;
-  return window.matchMedia(LIGHT_MQ).matches ? "light" : "dark";
+  return window.matchMedia(DARK_MQ).matches ? "dark" : "light";
 }
 
 export function setTheme(t: Theme): void {
@@ -25,7 +25,7 @@ export function setTheme(t: Theme): void {
 export function subscribeTheme(cb: () => void): () => void {
   const mo = new MutationObserver(cb);
   mo.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
-  const mq = window.matchMedia(LIGHT_MQ);
+  const mq = window.matchMedia(DARK_MQ);
   mq.addEventListener("change", cb);
   return () => {
     mo.disconnect();
@@ -34,5 +34,5 @@ export function subscribeTheme(cb: () => void): () => void {
 }
 
 export function useTheme(): Theme {
-  return useSyncExternalStore(subscribeTheme, currentTheme, () => "dark");
+  return useSyncExternalStore(subscribeTheme, currentTheme, () => "light");
 }
