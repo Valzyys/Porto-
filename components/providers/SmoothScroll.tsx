@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import Lenis from "lenis";
-import { gsap, ScrollTrigger, REDUCED } from "@/lib/gsap";
+import { gsap, ScrollTrigger, isReduced } from "@/lib/gsap";
 
 /** Instance Lenis aktif (null saat reduced motion atau belum mount). */
 export const lenisRef: { current: Lenis | null } = { current: null };
@@ -36,7 +36,7 @@ export function lockScroll(lock: boolean): void {
 export function SmoothScroll() {
   useEffect(() => {
     document.documentElement.classList.add("js");
-    if (window.matchMedia(REDUCED).matches) return;
+    if (isReduced()) return;
 
     const lenis = new Lenis({ lerp: 0.11, smoothWheel: true, wheelMultiplier: 0.95 });
     lenisRef.current = lenis;

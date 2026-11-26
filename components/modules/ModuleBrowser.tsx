@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import { gsap, Flip, useGSAP } from "@/lib/gsap";
+import { gsap, Flip, useGSAP, isReduced } from "@/lib/gsap";
 import { motion } from "@/design/tokens";
 import { modules, callOf, anchorOf, methodCount, type HttpVerb } from "@/content/api";
 import { Icon } from "@/components/ui/Icon";
@@ -64,7 +64,7 @@ export function ModuleBrowser() {
   // animasi masuk pertama
   useGSAP(
     () => {
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      if (isReduced()) return;
       gsap.from("[data-row]", { autoAlpha: 0, y: 14, duration: motion.dur.base, ease: motion.ease.out, stagger: 0.025 });
     },
     { scope: listRef },
@@ -76,7 +76,7 @@ export function ModuleBrowser() {
       const st = flip.current;
       if (!st) return;
       flip.current = null;
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      if (isReduced()) return;
       Flip.from(st, {
         duration: motion.dur.base,
         ease: motion.ease.out,

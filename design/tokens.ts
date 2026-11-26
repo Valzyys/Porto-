@@ -136,6 +136,8 @@ export const canvasBudget = { fps: 30, cell: { mobile: 10, desktop: 12 } } as co
 
 export type Theme = "dark" | "light";
 export const THEME_KEY = "jkt48core:theme";
+/** "off" = animasi dimatikan lewat tombol di footer. Default: animasi jalan. */
+export const MOTION_KEY = "jkt48core:motion";
 
 const kebab = (s: string) => s.replace(/[A-Z0-9]+/g, (m) => `-${m.toLowerCase()}`);
 

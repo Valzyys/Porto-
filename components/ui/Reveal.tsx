@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { gsap, useGSAP, ScrollTrigger } from "@/lib/gsap";
+import { gsap, useGSAP, ScrollTrigger, REDUCED, MOTION_OK } from "@/lib/gsap";
 import { motion } from "@/design/tokens";
 
 type Props = {
@@ -26,7 +26,7 @@ export function Reveal({ children, className, as: Tag = "div", start = "top 85%"
       if (!items.length) return;
       const mm = gsap.matchMedia();
       mm.add(
-        { reduce: "(prefers-reduced-motion: reduce)", ok: "(prefers-reduced-motion: no-preference)" },
+        { reduce: REDUCED, ok: MOTION_OK },
         (ctx) => {
           const { reduce } = ctx.conditions as { reduce: boolean };
           ScrollTrigger.batch(items, {

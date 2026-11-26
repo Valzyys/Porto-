@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { gsap, useGSAP } from "@/lib/gsap";
+import { gsap, useGSAP, isReduced } from "@/lib/gsap";
 import { motion } from "@/design/tokens";
 import { highlight } from "@/lib/highlight";
 import { CopyButton } from "@/components/ui/CopyButton";
@@ -20,7 +20,7 @@ export function CodeBlock({ tabs, title, lineNumbers = true }: { tabs: CodeTab[]
 
   useGSAP(
     () => {
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      if (isReduced()) return;
       gsap.fromTo(ref.current, { autoAlpha: 0, y: 4 }, { autoAlpha: 1, y: 0, duration: motion.dur.fast, ease: motion.ease.out });
     },
     { dependencies: [i] },

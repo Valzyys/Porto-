@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { gsap, useGSAP, MOTION_OK } from "@/lib/gsap";
+import { gsap, useGSAP, MOTION_OK, isReduced } from "@/lib/gsap";
 import { motion } from "@/design/tokens";
 import { rng } from "@/lib/pixel";
 import { modules } from "@/content/api";
@@ -96,7 +96,7 @@ export function LayerDiagram() {
     () => {
       gsap.to("[data-band]", { opacity: (i: number) => (i === active ? 1 : 0.35), duration: motion.dur.base, ease: motion.ease.out });
       gsap.fromTo("[data-caption]", { autoAlpha: 0, y: 6 }, { autoAlpha: 1, y: 0, duration: motion.dur.base, ease: motion.ease.out });
-      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      if (isReduced()) return;
       const id = window.setTimeout(() => setActive((a) => (a + 1) % LAYERS.length), 4200);
       return () => window.clearTimeout(id);
     },

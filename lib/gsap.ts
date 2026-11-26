@@ -14,6 +14,15 @@ if (typeof window !== "undefined") {
 
 export { gsap, ScrollTrigger, Flip, useGSAP };
 
-export const REDUCED = "(prefers-reduced-motion: reduce)";
-export const MOTION_OK = "(prefers-reduced-motion: no-preference)";
+/**
+ * Animasi dimatikan hanya lewat tombol situs (`html[data-motion="off"]`, diset
+ * script <head> dari localStorage). Setting OS "reduce motion" sengaja tidak
+ * dipakai sebagai saklar: di banyak desktop Windows setting itu aktif tanpa
+ * disadari dan membuat situs terlihat mati. Mengubah pilihan → reload.
+ */
+export function isReduced(): boolean {
+  return typeof document !== "undefined" && document.documentElement.dataset.motion === "off";
+}
+export const REDUCED = isReduced() ? "all" : "not all";
+export const MOTION_OK = isReduced() ? "not all" : "all";
 export const FINE_POINTER = "(hover: hover) and (pointer: fine)";

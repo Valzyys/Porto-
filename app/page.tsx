@@ -1,9 +1,8 @@
 import { modules, methodCount, httpMethods } from "@/content/api";
 import { pkg } from "@/content/pkg";
 import { Headline } from "@/components/ui/Headline";
-import { InstallBox } from "@/components/ui/InstallBox";
+import { Hero } from "@/components/home/Hero";
 import { CodeBlock } from "@/components/ui/CodeBlock";
-import { PixelBars } from "@/components/art/PixelBars";
 import { PixelArt } from "@/components/art/PixelArt";
 import { Reveal } from "@/components/ui/Reveal";
 import { Counter } from "@/components/ui/Counter";
@@ -27,30 +26,11 @@ const live = await client.live.getLive();`;
 export default function Home() {
   return (
     <div className="page-wrap pt-12 md:pt-14">
-      {/* bingkai hero */}
-      <section className="border border-line">
-        <div className="relative">
-          <div className="px-6 pt-8 md:px-9 md:pt-10">
-            <Headline
-              lead="@jkt48/core"
-              rest="client JavaScript untuk semua data JKT48Connect."
-              className="max-w-3xl text-[28px] leading-[1.15] md:text-[44px]"
-            />
-          </div>
-          <div className="mt-6 h-36 md:mt-2 md:h-40">
-            <PixelBars />
-          </div>
-        </div>
+      <Hero />
 
-        <div className="border-t border-line px-4 py-10 md:py-12">
-          <InstallBox className="mx-auto max-w-3xl" />
-          <p className="micro mx-auto mt-4 max-w-3xl text-center text-mute">
-            v{pkg.version} · {pkg.license} · Node.js &amp; browser · 1 dependensi ({pkg.dependency.name})
-          </p>
-        </div>
-
-        {/* dua panel ilustrasi */}
-        <div className="grid border-t border-line md:grid-cols-2">
+      {/* dua panel ilustrasi */}
+      <section className="border-x border-b border-line">
+        <div className="grid md:grid-cols-2">
           <Reveal className="flex flex-col p-6 md:border-r md:border-line md:p-9">
             <div className="mx-auto w-full max-w-md py-4">
               <PixelArt name="cube" label="Ilustrasi pixel kubus paket npm" />

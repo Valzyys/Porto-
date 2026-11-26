@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useSyncExternalStore } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { gsap, ScrollTrigger, isReduced } from "@/lib/gsap";
 import { motion, breakpoint } from "@/design/tokens";
 import { menuStore } from "@/lib/stores";
 import { scrollToTop, scrollToHash } from "@/components/providers/SmoothScroll";
@@ -69,7 +69,7 @@ export function TransitionProvider({ children }: { children: React.ReactNode }) 
     [],
   );
 
-  const reduced = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const reduced = () => isReduced();
 
   const originIndex = (origin: Origin): number | "center" => {
     if (!origin || !cols) return "center";

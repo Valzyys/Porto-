@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { gsap, useGSAP } from "@/lib/gsap";
+import { gsap, useGSAP, isReduced } from "@/lib/gsap";
 import { pkg } from "@/content/pkg";
 
 type Step = { code: string; verb?: string; path?: string; query?: string[]; headers?: string[]; note?: string };
@@ -53,7 +53,7 @@ export function TerminalDemo() {
   useGSAP(
     () => {
       const lines = gsap.utils.toArray<HTMLElement>("[data-line]", ref.current);
-      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const reduced = isReduced();
       if (reduced) {
         lines.forEach((l) => (l.textContent = l.dataset.full ?? ""));
         setStep(STEPS.length - 1);

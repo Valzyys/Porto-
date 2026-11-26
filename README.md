@@ -84,10 +84,12 @@ Biru dipakai untuk aksen/aktif, oranye khusus untuk hal yang butuh kredensial ad
 
 | Elemen | Gerak |
 | --- | --- |
-| Judul | kata demi kata naik dari balik masker saat masuk viewport |
-| Bar pixel hero | skyline canvas yang bergelombang dan bereaksi ke kursor (kolom biru mengikuti pointer), 30 fps, berhenti saat offscreen |
+| Hero | bingkai digambar dari tepi, sudut pixel berkedip, judul `@jkt48/core` didekode dari karakter acak, koma biru meletup, lanjutan judul naik per kata, parallax saat di-scroll |
+| Judul lain | kata demi kata naik dari balik masker saat masuk viewport |
+| Bar pixel hero | canvas: kolom merakit dari kiri ke kanan, bergelombang, pita terang menyapu, paket data pixel naik dari puncak batang, riak saat klik/tap (dan otomatis), batang terangkat di sekitar kursor; 30 fps, berhenti saat offscreen |
+| Marquee method | pita berjalan berisi 41 method; melambat saat hover, kecepatan/arah ikut scroll |
 | Ilustrasi pixel | tiap pixel terbang dari posisi acak lalu merakit; pixel acak berkedip; ilustrasi bergeser mengikuti kursor |
-| Kotak install | perintah diketik ulang tiap ganti package manager; tombol copy berubah jadi centang |
+| Kotak install | package manager berganti sendiri tiap 3,6 detik (berhenti setelah dipilih manual); perintah lama dihapus mundur lalu diketik ulang; pil aktif meluncur; tombol copy berubah jadi centang |
 | Demo terminal | kode diketik baris demi baris, inspektor request terisi (verb, path, query, header) |
 | Diagram lapisan | paket request/respons berjalan antar lapisan; stepper maju sendiri tiap 4,2 detik |
 | Grafik rilis | kolom pixel per bulan tumbuh saat di-scroll |
@@ -96,7 +98,11 @@ Biru dipakai untuk aksen/aktif, oranye khusus untuk hal yang butuh kredensial ad
 | Angka | counter naik dari 0 |
 | Navigasi | transisi tile grid antar halaman; drawer mobile dengan item bertahap; smooth scroll Lenis (anchor `#method` ikut di-scroll halus) |
 
-Semua animasi gerak dimatikan otomatis di `prefers-reduced-motion: reduce` (konten tetap tampil penuh).
+Animasi selalu jalan secara default, **termasuk saat setting OS "reduce motion" aktif**. Di banyak desktop Windows
+(Settings → Accessibility → Visual effects → Animation effects mati) setting itu menyala tanpa disadari dan membuat
+situs terlihat mati. Sebagai gantinya ada tombol **Animasi on/off** di footer: pilihan disimpan di `localStorage`
+(`jkt48core:motion`), diterapkan oleh script `<head>` (`html[data-motion="off"]`), lalu halaman dimuat ulang. Saat
+off, semua konten tetap tampil penuh tanpa gerak.
 
 ---
 

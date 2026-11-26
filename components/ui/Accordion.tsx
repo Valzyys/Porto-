@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { gsap, useGSAP } from "@/lib/gsap";
+import { gsap, useGSAP, isReduced } from "@/lib/gsap";
 import { motion } from "@/design/tokens";
 import { Md } from "@/lib/md";
 import { Icon } from "@/components/ui/Icon";
@@ -13,7 +13,7 @@ function Item({ q, a, open, onToggle, id }: { q: string; a: string; open: boolea
     () => {
       const el = body.current;
       if (!el) return;
-      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const reduced = isReduced();
       gsap.to(el, { height: open ? "auto" : 0, opacity: open ? 1 : 0, duration: reduced ? 0 : motion.dur.base, ease: motion.ease.out });
     },
     { dependencies: [open] },

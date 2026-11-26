@@ -204,12 +204,10 @@ html.js [data-reveal] {
   animation: blink 1s steps(1) infinite;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  html.js [data-reveal] {
-    opacity: 1;
-  }
+html.js[data-motion="off"] [data-reveal] {
+  opacity: 1;
+}
 
-  .caret {
-    animation: none;
-  }
+html[data-motion="off"] .caret {
+  animation: none;
 }

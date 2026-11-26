@@ -3,6 +3,7 @@ import { pkg } from "@/content/pkg";
 import { TransitionLink } from "@/components/transition/TransitionLink";
 import { Wordmark } from "@/components/ui/Wordmark";
 import { Icon } from "@/components/ui/Icon";
+import { MotionToggle } from "@/components/ui/MotionToggle";
 
 /** Footer ala referensi: wordmark + pernyataan besar di kiri, kolom mono di kanan. */
 export function Footer() {
@@ -40,10 +41,11 @@ export function Footer() {
           ))}
         </div>
       </div>
-      <div className="page-wrap pb-8">
+      <div className="page-wrap flex flex-wrap items-center justify-between gap-4 pb-8">
         <p className="micro text-mute">
           {site.org} · {site.place} · © 2025–2026 {site.maker} · {pkg.license} license · Tidak berafiliasi resmi dengan JKT48
         </p>
+        <MotionToggle />
       </div>
     </footer>
   );
