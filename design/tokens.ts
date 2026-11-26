@@ -1,106 +1,104 @@
 /**
  * Design tokens — satu-satunya sumber nilai visual & gerak.
  *
- * - Warna, spacing, font, z-index, radius → CSS custom properties (lihat
- *   `tokensToCss`) yang dipetakan ke Tailwind lewat `@theme inline` di
- *   app/globals.css. Komponen cukup pakai class (`bg-canvas`, `text-ink`,
- *   `bg-blue`, `border-hair`, `font-display`, …).
+ * - Warna, spacing, radius, z-index → CSS custom properties (`tokensToCss`)
+ *   yang dipetakan ke Tailwind lewat `@theme inline` di app/globals.css
+ *   (`bg-canvas`, `text-ink`, `border-line`, `font-mono`, …).
  * - Durasi, easing, stagger → dipakai langsung oleh GSAP lewat `motion`.
  *
- * Arah visual: UI "game HUD" editorial — kanvas putih, biru kobalt, aksen
- * oranye/peach, garis hitam tegas, bar gelap bersudut miring.
+ * Arah visual: docs teknis yang tenang — kanvas krem, tinta hampir hitam,
+ * garis tipis, aksen biru tunggal, ilustrasi pixel.
  */
 
 /** Tema terang (default ikut sistem). */
 export const color = {
-  /** latar halaman */
-  canvas: "#ffffff",
-  /** permukaan kartu / panel */
-  surface: "#f3f3f1",
-  surface2: "#e9e9e6",
-  /** garis tegas (outline kartu, ilustrasi) */
-  line: "#161616",
-  /** garis tipis pemisah */
-  hair: "#d9d9d6",
-  /** teks utama */
-  ink: "#141414",
-  /** teks sekunder — kontras 5.3:1 di atas canvas */
-  mute: "#6b6b6b",
-  /** biru kobalt: isian (badge, bubble, logo). Teks putih di atasnya 6.7:1 */
-  blue: "#1f4fd6",
-  /** biru untuk teks di atas canvas */
-  blueInk: "#1f4fd6",
-  blueSoft: "#dfe7ff",
-  /** oranye & peach: HANYA isian/ilustrasi, bukan warna teks */
-  orange: "#f0a032",
-  peach: "#f6d0b4",
-  /** bar gelap (bottom bar, footer) */
-  bar: "#1c1c1c",
-  onBar: "#f4f4f4",
-  onBarMute: "#a8a8a8",
-  onBlue: "#ffffff",
+  canvas: "#f2f2ef",
+  /** panel sedikit lebih terang (input, kartu aktif) */
+  surface: "#f7f7f4",
+  /** panel sedikit lebih gelap (strip, hover) */
+  sunken: "#ebebe7",
+  line: "#d6d6d1",
+  /** garis kuat (fokus, aktif) */
+  strong: "#1b1b1a",
+  ink: "#1b1b1a",
+  /** teks sekunder — kontras 5.1:1 di atas canvas */
+  mute: "#66665f",
+  /** tombol utama */
+  button: "#1b1b1a",
+  onButton: "#f2f2ef",
+  blue: "#2f55d4",
+  blueSoft: "#dfe5fb",
+  orange: "#d9661f",
+  orangeSoft: "#fbe9dc",
+  green: "#2e7d4f",
+  red: "#c0392b",
+  /** tingkat abu untuk ilustrasi pixel */
+  px1: "#dcdcd7",
+  px2: "#c2c2bc",
+  px3: "#97978f",
+  px4: "#5f5f59",
+  /** latar blok kode */
+  code: "#ebebe6",
 } as const;
 
-/** Tema gelap: nama token sama, nilai disesuaikan. */
+/** Tema gelap: nama token sama. */
 export const colorDark: Record<keyof typeof color, string> = {
-  canvas: "#0e0f11",
-  surface: "#18191c",
-  surface2: "#222327",
-  line: "#e6e6e3",
-  hair: "#2c2d31",
-  ink: "#f2f2f0",
-  mute: "#9b9b9b",
-  blue: "#3567f0",
-  blueInk: "#7a9cff",
-  blueSoft: "#1b2547",
-  orange: "#f2a73c",
-  peach: "#e9b998",
-  bar: "#26272b",
-  onBar: "#f2f2f0",
-  onBarMute: "#a3a3a3",
-  onBlue: "#ffffff",
+  canvas: "#121211",
+  surface: "#191918",
+  sunken: "#1f1f1d",
+  line: "#2e2e2b",
+  strong: "#ecece8",
+  ink: "#ecece8",
+  mute: "#9b9b94",
+  button: "#ecece8",
+  onButton: "#121211",
+  blue: "#7090ff",
+  blueSoft: "#1d2547",
+  orange: "#f08a45",
+  orangeSoft: "#3a2516",
+  green: "#5cc48a",
+  red: "#ef6b5b",
+  px1: "#262624",
+  px2: "#383835",
+  px3: "#62625c",
+  px4: "#9c9c95",
+  code: "#1a1a18",
 };
 
 export type ColorName = keyof typeof color;
 
-/** Warna yang dipakai bergiliran oleh tile transisi & ilustrasi. */
-export const accents: readonly ColorName[] = ["blue", "orange", "peach", "bar"];
-
 export const font = {
-  /** semua teks UI & judul (Archivo, OFL; sumbu lebar 62–125) */
-  display: "var(--font-archivo)",
-  /** kode, diagram ASCII, koordinat (JetBrains Mono, OFL) */
-  mono: "var(--font-jetbrains)",
-  /** teks Jepang dekoratif — font sistem, tanpa webfont */
-  jp: '"Hiragino Sans", "Noto Sans JP", "Yu Gothic", "WenQuanYi Zen Hei", sans-serif',
+  /** teks UI & judul (Geist, OFL) */
+  sans: "var(--font-geist)",
+  /** label mikro, nav, kode (Geist Mono, OFL) */
+  mono: "var(--font-geist-mono)",
+  /** wordmark pixel saja (Silkscreen, OFL) */
+  pixel: "var(--font-silkscreen)",
 } as const;
 
 export const space = {
-  /** unit dasar Tailwind (`p-1` = 4px) */
   unit: "0.25rem",
-  /** gutter samping halaman */
-  gutter: "clamp(1rem, 4vw, 3rem)",
-  /** jarak vertikal antar section */
-  section: "clamp(4rem, 10vw, 8rem)",
-  /** lebar maksimum konten */
-  container: "76rem",
+  gutter: "clamp(1rem, 4vw, 4rem)",
+  section: "clamp(4rem, 9vw, 7rem)",
+  container: "80rem",
+  /** tinggi topbar */
+  bar: "4.5rem",
 } as const;
 
 export const radius = {
-  /** kartu & panel */
-  card: "0.75rem",
-  /** elemen di dalam kartu (radius_dalam = luar − padding kecil) */
-  inner: "0.375rem",
-  /** pill / bubble / toggle */
-  pill: "999px",
+  /** kotak input/terminal */
+  box: "1.25rem",
+  /** tombol & badge kecil */
+  tag: "2px",
 } as const;
 
 export const layer = {
   base: 0,
   raised: 10,
   nav: 60,
+  drawer: 70,
+  dialog: 75,
   curtain: 80,
-  intro: 90,
 } as const;
 
 export const motion = {
@@ -109,8 +107,6 @@ export const motion = {
     fast: 0.25,
     base: 0.5,
     slow: 0.9,
-    /** panjang loader intro (detik) */
-    intro: 2.2,
   },
   ease: {
     out: "power3.out",
@@ -121,11 +117,11 @@ export const motion = {
     none: "none",
   },
   stagger: {
-    tight: 0.035,
-    base: 0.07,
+    tight: 0.03,
+    base: 0.06,
     loose: 0.12,
     /** total waktu tile transisi menutup/membuka layar */
-    tiles: 0.42,
+    tiles: 0.38,
   },
   css: {
     out: "cubic-bezier(0.22, 1, 0.36, 1)",
@@ -133,19 +129,15 @@ export const motion = {
   },
 } as const;
 
-/** Breakpoint (px) — sama dengan default Tailwind. */
-export const breakpoint = {
-  sm: 640,
-  md: 768,
-  lg: 1024,
-  xl: 1280,
-} as const;
+export const breakpoint = { sm: 640, md: 768, lg: 1024, xl: 1280 } as const;
 
-/** Kecepatan baca untuk estimasi "x min left" di kartu progres. */
-export const readingWpm = 200;
+/** Batas performa canvas bar pixel di hero. */
+export const canvasBudget = { fps: 30, cell: { mobile: 10, desktop: 12 } } as const;
 
 export type Theme = "dark" | "light";
-export const THEME_KEY = "vzy:theme";
+export const THEME_KEY = "jkt48core:theme";
+/** "off" = animasi dimatikan lewat tombol di footer. Default: animasi jalan. */
+export const MOTION_KEY = "jkt48core:motion";
 
 const kebab = (s: string) => s.replace(/[A-Z0-9]+/g, (m) => `-${m.toLowerCase()}`);
 
@@ -156,8 +148,7 @@ const colorVars = (c: Record<string, string>) =>
 
 /**
  * Render semua token jadi CSS untuk disuntik di <head>.
- * Tema: default ikut sistem (prefers-color-scheme); pilihan manual disimpan
- * sebagai `data-theme` di <html> dan menang atas setting sistem.
+ * Default ikut sistem; pilihan manual (data-theme di <html>) menang.
  */
 export function tokensToCss(): string {
   const vars: string[] = [];
@@ -166,7 +157,6 @@ export function tokensToCss(): string {
   for (const [k, v] of Object.entries(layer)) vars.push(`--z-${k}:${v}`);
   for (const [k, v] of Object.entries(motion.dur)) vars.push(`--dur-${k}:${v}s`);
   for (const [k, v] of Object.entries(motion.css)) vars.push(`--ease-${k}:${v}`);
-  vars.push(`--font-jp:${font.jp}`);
   const light = `${colorVars(color)};color-scheme:light`;
   const dark = `${colorVars(colorDark)};color-scheme:dark`;
   return [

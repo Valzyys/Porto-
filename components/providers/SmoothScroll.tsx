@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import Lenis from "lenis";
-import { gsap, ScrollTrigger, REDUCED } from "@/lib/gsap";
+import { gsap, ScrollTrigger, isReduced } from "@/lib/gsap";
 
 /** Instance Lenis aktif (null saat reduced motion atau belum mount). */
 export const lenisRef: { current: Lenis | null } = { current: null };
@@ -10,6 +10,15 @@ export const lenisRef: { current: Lenis | null } = { current: null };
 export function scrollToTop(): void {
   if (lenisRef.current) lenisRef.current.scrollTo(0, { immediate: true, force: true });
   else window.scrollTo(0, 0);
+}
+
+/** Gulir ke elemen ber-id `hash` (anchor method/heading), dengan offset topbar. */
+export function scrollToHash(hash: string, immediate = false): void {
+  const el = document.getElementById(decodeURIComponent(hash));
+  if (!el) return;
+  const offset = -((document.querySelector("header")?.getBoundingClientRect().height ?? 72) + 16);
+  if (lenisRef.current) lenisRef.current.scrollTo(el, { offset, immediate, force: true });
+  else window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY + offset, behavior: immediate ? "auto" : "smooth" });
 }
 
 export function lockScroll(lock: boolean): void {
@@ -27,7 +36,7 @@ export function lockScroll(lock: boolean): void {
 export function SmoothScroll() {
   useEffect(() => {
     document.documentElement.classList.add("js");
-    if (window.matchMedia(REDUCED).matches) return;
+    if (isReduced()) return;
 
     const lenis = new Lenis({ lerp: 0.11, smoothWheel: true, wheelMultiplier: 0.95 });
     lenisRef.current = lenis;

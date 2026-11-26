@@ -1,92 +1,133 @@
 /**
- * Ikon garis buatan sendiri (grid 24, stroke 1.75). Tanpa library ikon,
- * tanpa emoji. `label` → ikon bermakna; tanpa label → dekoratif.
+ * Ikon garis buatan sendiri (grid 24, stroke 1.6). `label` → ikon bermakna;
+ * tanpa label → dekoratif (aria-hidden).
  */
 
 const PATHS = {
-  moon: <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" fill="currentColor" stroke="none" />,
+  search: (
+    <>
+      <circle cx="11" cy="11" r="6.5" />
+      <path d="m20 20-4.2-4.2" />
+    </>
+  ),
   sun: (
     <>
-      <circle cx="12" cy="12" r="4.2" fill="currentColor" stroke="none" />
-      <path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6" />
+      <circle cx="12" cy="12" r="3.6" />
+      <path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6 7 7M17 17l1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4" />
     </>
   ),
-  clock: (
+  moon: <path d="M19.5 14.5A7.5 7.5 0 0 1 9.5 4.5a7.5 7.5 0 1 0 10 10Z" />,
+  copy: (
     <>
-      <circle cx="12" cy="12" r="9" fill="currentColor" stroke="none" opacity="0.35" />
-      <path d="M12 7v5l3 2" />
+      <rect x="8.5" y="8.5" width="11" height="11" rx="1.5" />
+      <path d="M15.5 8.5V6a1.5 1.5 0 0 0-1.5-1.5H6A1.5 1.5 0 0 0 4.5 6v8A1.5 1.5 0 0 0 6 15.5h2.5" />
     </>
   ),
+  check: <path d="m5 12.5 4.5 4.5L19 7.5" />,
+  arrowRight: <path d="M5 12h14M13 6l6 6-6 6" />,
+  arrowLeft: <path d="M19 12H5M11 6l-6 6 6 6" />,
+  arrowUp: <path d="M12 19V5M6 11l6-6 6 6" />,
   arrowUpRight: <path d="M7 17 17 7M8.5 7H17v8.5" />,
-  arrowRight: <path d="M4 12h15M13 6l6 6-6 6" />,
-  arrowLeft: <path d="M20 12H5M11 6l-6 6 6 6" />,
-  arrowUp: <path d="M12 20V5M6 11l6-6 6 6" />,
-  shrink: <path d="M4 4l6 6M10 5v5H5M20 20l-6-6M14 19v-5h5" />,
-  globe: (
+  chevronRight: <path d="m9 6 6 6-6 6" />,
+  chevronDown: <path d="m6 9 6 6 6-6" />,
+  menu: <path d="M4 7h16M4 12h16M4 17h16" />,
+  close: <path d="M6 6l12 12M18 6 6 18" />,
+  plus: <path d="M12 5v14M5 12h14" />,
+  minus: <path d="M5 12h14" />,
+  terminal: (
     <>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M3 12h18M12 3c2.6 2.6 3.8 5.6 3.8 9s-1.2 6.4-3.8 9c-2.6-2.6-3.8-5.6-3.8-9S9.4 5.6 12 3Z" />
+      <rect x="3" y="4.5" width="18" height="15" rx="1.5" />
+      <path d="m7 9.5 3 2.5-3 2.5M12.5 15H17" />
     </>
   ),
-  mail: (
-    <>
-      <rect x="3" y="5" width="18" height="14" rx="2" />
-      <path d="m4 7 8 6 8-6" />
-    </>
-  ),
-  code: <path d="m8 7-5 5 5 5M16 7l5 5-5 5M13.5 4l-3 16" />,
-  send: <path d="M21 3 10 14M21 3l-6.5 18-4.5-7-7-4.5L21 3Z" />,
+  code: <path d="m8 7-5 5 5 5M16 7l5 5-5 5" />,
   box: (
     <>
       <path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z" />
       <path d="m4 7.5 8 4.5 8-4.5M12 12v9" />
     </>
   ),
-  copy: (
+  book: (
     <>
-      <rect x="8" y="8" width="12" height="12" rx="2" />
-      <path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3" />
+      <path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H12v16H5.5A1.5 1.5 0 0 1 4 18.5v-13Z" />
+      <path d="M12 4h6.5A1.5 1.5 0 0 1 20 5.5v13a1.5 1.5 0 0 1-1.5 1.5H12" />
     </>
   ),
-  check: <path d="m5 12.5 4.5 4.5L19 7" />,
-  pin: (
+  key: (
     <>
-      <path d="M12 21s-6.5-6-6.5-11a6.5 6.5 0 0 1 13 0c0 5-6.5 11-6.5 11Z" />
-      <circle cx="12" cy="10" r="2.3" />
+      <circle cx="8" cy="12" r="4" />
+      <path d="M12 12h8M17 12v3M20 12v2" />
     </>
   ),
-  spark: <path d="M12 2.5 13.8 10.2 21.5 12 13.8 13.8 12 21.5 10.2 13.8 2.5 12 10.2 10.2 12 2.5Z" fill="currentColor" stroke="none" />,
-  gear: (
+  alert: (
     <>
-      <circle cx="12" cy="12" r="3" />
-      <path d="M12 2.8v3M12 18.2v3M2.8 12h3M18.2 12h3M5.5 5.5l2.1 2.1M16.4 16.4l2.1 2.1M5.5 18.5l2.1-2.1M16.4 7.6l2.1-2.1" />
+      <path d="M12 4 2.8 19.5h18.4L12 4Z" />
+      <path d="M12 10v4.5M12 17v.5" />
     </>
   ),
-  square: <rect x="7" y="7" width="10" height="10" fill="currentColor" stroke="none" />,
+  info: (
+    <>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M12 11v5M12 8v.5" />
+    </>
+  ),
   layers: (
     <>
-      <path d="m12 3 9 5-9 5-9-5 9-5Z" />
-      <path d="m3 13 9 5 9-5" />
+      <path d="m12 4 9 4.5-9 4.5-9-4.5L12 4Z" />
+      <path d="m3 13 9 4.5 9-4.5" />
     </>
   ),
-  user: (
+  hash: <path d="M9 4 7 20M17 4l-2 16M4 9h16M3 15h16" />,
+  compass: (
     <>
-      <circle cx="12" cy="8" r="4" />
-      <path d="M4 21c1.2-4 4.3-6 8-6s6.8 2 8 6" />
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="m15 9-1.8 4.2L9 15l1.8-4.2L15 9Z" />
+    </>
+  ),
+  sort: <path d="M7 4v16M4 17l3 3 3-3M17 20V4M14 7l3-3 3 3" />,
+  shield: <path d="M12 3.5 19 6v5.5c0 4.2-2.9 7.6-7 9-4.1-1.4-7-4.8-7-9V6l7-2.5Z" />,
+  radio: (
+    <>
+      <circle cx="12" cy="12" r="2" />
+      <path d="M8 8a5.6 5.6 0 0 0 0 8M16 8a5.6 5.6 0 0 1 0 8M5.2 5.2a9.6 9.6 0 0 0 0 13.6M18.8 5.2a9.6 9.6 0 0 1 0 13.6" />
+    </>
+  ),
+  users: (
+    <>
+      <circle cx="9" cy="8.5" r="3.5" />
+      <path d="M3 19.5c.8-3.2 3.2-5 6-5s5.2 1.8 6 5M16 5.2a3.4 3.4 0 0 1 0 6.6M18 14.8c1.6.7 2.6 2.4 3 4.7" />
+    </>
+  ),
+  calendar: (
+    <>
+      <rect x="3.5" y="5" width="17" height="15" rx="1.5" />
+      <path d="M3.5 10h17M8 3v4M16 3v4" />
+    </>
+  ),
+  film: (
+    <>
+      <rect x="3.5" y="4.5" width="17" height="15" rx="1.5" />
+      <path d="m10 9 5 3-5 3V9Z" />
+    </>
+  ),
+  list: <path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01" />,
+  sprout: (
+    <>
+      <path d="M12 20v-8" />
+      <path d="M12 12c0-4 2.5-6.5 7-6.5 0 4.5-2.5 6.5-7 6.5ZM12 13c0-3.2-2-5.2-6-5.2 0 3.6 2 5.2 6 5.2Z" />
+    </>
+  ),
+  cpu: (
+    <>
+      <rect x="6.5" y="6.5" width="11" height="11" rx="1.5" />
+      <path d="M9.5 3.5v3M14.5 3.5v3M9.5 17.5v3M14.5 17.5v3M3.5 9.5h3M3.5 14.5h3M17.5 9.5h3M17.5 14.5h3" />
     </>
   ),
 } as const;
 
 export type IconName = keyof typeof PATHS;
 
-type Props = {
-  name: IconName;
-  size?: number;
-  className?: string;
-  label?: string;
-};
-
-export function Icon({ name, size = 18, className, label }: Props) {
+export function Icon({ name, size = 16, className, label }: { name: IconName; size?: number; className?: string; label?: string }) {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -94,7 +135,7 @@ export function Icon({ name, size = 18, className, label }: Props) {
       height={size}
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.75"
+      strokeWidth="1.6"
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
@@ -104,38 +145,6 @@ export function Icon({ name, size = 18, className, label }: Props) {
       focusable="false"
     >
       {PATHS[name]}
-    </svg>
-  );
-}
-
-/** Logo: kotak biru dengan tanda "V" lengkung — dipakai di topbar & intro. */
-export function LogoMark({ size = 36, className = "" }: { size?: number; className?: string }) {
-  return (
-    <svg viewBox="0 0 40 40" width={size} height={size} className={className} aria-hidden="true" focusable="false">
-      <rect width="40" height="40" rx="4" fill="var(--c-blue)" />
-      <path
-        d="M11 12c0 9 3.5 15 9 17 5.5-2 9-8 9-17"
-        fill="none"
-        stroke="var(--c-on-blue)"
-        strokeWidth="4.5"
-        strokeLinecap="round"
-      />
-      <circle cx="20" cy="12.5" r="3" fill="var(--c-on-blue)" />
-    </svg>
-  );
-}
-
-/** Empat belah ketupat dua warna (dekor referensi) — warna dari token. */
-export function Diamonds({ size = 40, className = "" }: { size?: number; className?: string }) {
-  const d = (cx: number, cy: number, fill: string) => (
-    <path d={`M${cx} ${cy - 9}l9 9-9 9-9-9z`} fill={fill} />
-  );
-  return (
-    <svg viewBox="0 0 40 40" width={size} height={size} className={className} aria-hidden="true" focusable="false">
-      {d(20, 10, "var(--c-blue)")}
-      {d(10, 20, "var(--c-blue)")}
-      {d(30, 20, "var(--c-peach)")}
-      {d(20, 30, "var(--c-orange)")}
     </svg>
   );
 }

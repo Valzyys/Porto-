@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { gsap, useGSAP } from "@/lib/gsap";
+import { gsap, useGSAP, isReduced } from "@/lib/gsap";
 import { motion } from "@/design/tokens";
 
 /** Angka yang menghitung naik hanya ketika masuk viewport. Nilai asli ada di DOM. */
@@ -12,7 +12,7 @@ export function Counter({ value, pad = 2, className }: { value: number; pad?: nu
   useGSAP(
     () => {
       const el = ref.current;
-      if (!el || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      if (!el || isReduced()) return;
       const obj = { v: 0 };
       el.textContent = fmt(0);
       gsap.to(obj, {

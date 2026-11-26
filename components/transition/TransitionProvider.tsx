@@ -2,10 +2,10 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useSyncExternalStore } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { gsap, ScrollTrigger, isReduced } from "@/lib/gsap";
 import { motion, breakpoint } from "@/design/tokens";
 import { menuStore } from "@/lib/stores";
-import { scrollToTop } from "@/components/providers/SmoothScroll";
+import { scrollToTop, scrollToHash } from "@/components/providers/SmoothScroll";
 
 type Origin = { x: number; y: number } | null;
 
@@ -34,19 +34,17 @@ function subscribeResize(cb: () => void) {
 function gridSnapshot(): string {
   const w = window.innerWidth;
   const h = window.innerHeight;
-  const size = w < breakpoint.md ? 56 : 84;
+  const size = w < breakpoint.md ? 40 : 56;
   return `${Math.ceil(w / size)}x${Math.ceil(h / size)}`;
 }
 
 function tileColor(i: number, cols: number): string {
   const x = i % cols;
   const y = Math.floor(i / cols);
-  // aksen penlight muncul di pola deterministik, sisanya gelap
-  // dominan biru kobalt, dengan aksen oranye/peach dan bar gelap
-  if ((x * 7 + y * 5) % 13 === 0) return "var(--c-orange)";
-  if ((x * 3 + y * 11) % 17 === 0) return "var(--c-peach)";
-  if ((x + y) % 2 === 0) return "var(--c-blue)";
-  return "var(--c-bar)";
+  // tile pixel abu bertingkat dengan sesekali biru (gaya ilustrasi pixel)
+  if ((x * 7 + y * 5) % 19 === 0) return "var(--c-blue)";
+  const k = (x * 3 + y * 5) % 4;
+  return ["var(--c-px-1)", "var(--c-px-2)", "var(--c-px-3)", "var(--c-px-2)"][k];
 }
 
 export function TransitionProvider({ children }: { children: React.ReactNode }) {
@@ -71,7 +69,7 @@ export function TransitionProvider({ children }: { children: React.ReactNode }) 
     [],
   );
 
-  const reduced = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const reduced = () => isReduced();
 
   const originIndex = (origin: Origin): number | "center" => {
     if (!origin || !cols) return "center";
@@ -116,9 +114,12 @@ export function TransitionProvider({ children }: { children: React.ReactNode }) 
   const navigate = useCallback(
     (href: string, origin: Origin = null) => {
       menuStore.set(false);
-      const target = href.split("#")[0] || "/";
-      if (target === pathname) {
-        scrollToTop();
+      const [target = "/", hash] = href.split("#");
+      if ((target || "/") === pathname) {
+        if (hash) {
+          window.history.replaceState(null, "", `#${hash}`);
+          scrollToHash(hash);
+        } else scrollToTop();
         return;
       }
       pendingRef.current = target;
@@ -156,9 +157,11 @@ export function TransitionProvider({ children }: { children: React.ReactNode }) 
     const first = lastEntered.current === null;
     const same = lastEntered.current === path;
     lastEntered.current = path;
-    // load pertama ditangani intro; path sama = efek dobel (StrictMode)
+    // load pertama tidak butuh tirai; path sama = efek dobel (StrictMode)
     if (first || same) return;
-    scrollToTop();
+    const hash = window.location.hash.slice(1);
+    if (hash) requestAnimationFrame(() => scrollToHash(hash, true));
+    else scrollToTop();
     requestAnimationFrame(() => ScrollTrigger.refresh());
     if (!coveredRef.current && !reduced()) {
       // back/forward browser: tutup instan lalu buka supaya tetap ada transisi
@@ -197,7 +200,7 @@ export function TransitionProvider({ children }: { children: React.ReactNode }) 
         ))}
         <p
           ref={labelRef}
-          className="invisible absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-pill bg-canvas px-4 py-2 text-sm font-extrabold uppercase italic tracking-tight text-ink opacity-0"
+          className="micro invisible absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-button px-3 py-2 text-on-button opacity-0"
         />
       </div>
     </TransitionCtx.Provider>

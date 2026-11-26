@@ -3,7 +3,8 @@
 import { useRef, useState } from "react";
 import { Icon } from "@/components/ui/Icon";
 
-export function CopyButton({ value, label }: { value: string; label: string }) {
+/** Tombol salin kecil: ikon berganti ✓ selama 1.6 detik. */
+export function CopyButton({ value, label = "Salin", className = "", round = false }: { value: string; label?: string; className?: string; round?: boolean }) {
   const [done, setDone] = useState(false);
   const timer = useRef<number | undefined>(undefined);
   return (
@@ -20,10 +21,14 @@ export function CopyButton({ value, label }: { value: string; label: string }) {
           /* clipboard diblokir: diam saja */
         }
       }}
-      className="micro flex items-center gap-1.5 rounded-pill border border-line px-2.5 py-1 transition-colors duration-150 hover:bg-ink hover:text-canvas"
+      className={
+        round
+          ? `grid h-9 w-9 place-items-center rounded-full bg-sunken text-mute transition-colors duration-150 hover:bg-button hover:text-on-button ${className}`
+          : `micro flex items-center gap-1.5 rounded-tag px-2 py-1 text-mute transition-colors duration-150 hover:text-ink ${className}`
+      }
     >
-      <Icon name={done ? "check" : "copy"} size={12} />
-      <span aria-live="polite">{done ? "tersalin" : "salin"}</span>
+      <Icon name={done ? "check" : "copy"} size={round ? 15 : 13} className={done ? "text-green" : undefined} />
+      {!round && <span aria-live="polite">{done ? "copied" : "copy"}</span>}
     </button>
   );
 }
