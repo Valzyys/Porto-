@@ -12,6 +12,15 @@ export function scrollToTop(): void {
   else window.scrollTo(0, 0);
 }
 
+/** Gulir ke elemen ber-id `hash` (anchor method/heading), dengan offset topbar. */
+export function scrollToHash(hash: string, immediate = false): void {
+  const el = document.getElementById(decodeURIComponent(hash));
+  if (!el) return;
+  const offset = -((document.querySelector("header")?.getBoundingClientRect().height ?? 72) + 16);
+  if (lenisRef.current) lenisRef.current.scrollTo(el, { offset, immediate, force: true });
+  else window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY + offset, behavior: immediate ? "auto" : "smooth" });
+}
+
 export function lockScroll(lock: boolean): void {
   if (lenisRef.current) {
     if (lock) lenisRef.current.stop();

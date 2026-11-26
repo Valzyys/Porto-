@@ -4,34 +4,35 @@
  * Butuh paket `playwright` (tidak masuk dependencies proyek; pasang global/terpisah).
  */
 import { chromium } from "playwright";
-import { mkdirSync } from "node:fs";
+import { mkdirSync, readdirSync, rmSync } from "node:fs";
 
 const BASE = process.argv[2] ?? "http://localhost:8787";
 const OUT = (process.env.OUT_DIR ?? new URL("../screenshots/", import.meta.url).pathname).replace(/\/?$/, "/");
 mkdirSync(OUT, { recursive: true });
+for (const f of readdirSync(OUT)) if (f.endsWith(".png")) rmSync(OUT + f);
 
+const THEME_KEY = "jkt48core:theme";
 const SIZES = { mobile: { width: 390, height: 844 }, desktop: { width: 1440, height: 900 } };
-// tema default screenshot = terang (default sistem di sebagian besar perangkat); varian `-dark` diambil terpisah
 const PAGES = [
   ["home", "/"],
-  ["about", "/about"],
-  ["projects", "/projects"],
-  ["project-detail", "/projects/jkt48connect-live"],
-  ["stack", "/stack"],
-  ["contact", "/contact"],
+  ["client", "/client"],
+  ["modules", "/modules"],
+  ["access", "/access"],
+  ["docs", "/docs"],
+  ["docs-quickstart", "/docs/quickstart"],
+  ["docs-api-live", "/docs/api/live"],
+  ["docs-endpoints", "/docs/endpoints"],
+  ["docs-versions", "/docs/versions"],
   ["404", "/halaman-yang-tidak-ada"],
 ];
 
 const errors = [];
 const browser = await chromium.launch();
 
-async function newPage(size, { skipIntro = true, theme = "light" } = {}) {
+async function newPage(size, theme = "light") {
   const ctx = await browser.newContext({ viewport: SIZES[size], deviceScaleFactor: 1, hasTouch: size === "mobile", isMobile: size === "mobile" });
-  if (skipIntro) await ctx.addInitScript(() => { try { sessionStorage.setItem("vzy:intro-seen", "1"); } catch {} });
-  await ctx.addInitScript((t) => { try { localStorage.setItem("vzy:theme", t); } catch {} }, theme);
+  await ctx.addInitScript(([k, t]) => { try { localStorage.setItem(k, t); } catch {} }, [THEME_KEY, theme]);
   const page = await ctx.newPage();
-  // kursor di tengah layar → parallax banner dalam posisi netral
-  if (size === "desktop") page.on("load", () => page.mouse.move(SIZES.desktop.width * 0.62, SIZES.desktop.height * 0.45).catch(() => {}));
   page.on("pageerror", (e) => errors.push(`${size} ${page.url()} pageerror: ${e.message}`));
   page.on("console", (m) => m.type() === "error" && errors.push(`${size} ${page.url()} console: ${m.text()}`));
   return { ctx, page };
@@ -42,7 +43,7 @@ async function sweep(page) {
   const h = await page.evaluate(() => document.documentElement.scrollHeight);
   for (let y = 0; y <= h; y += 300) {
     await page.evaluate((yy) => window.scrollTo(0, yy), y);
-    await page.waitForTimeout(90);
+    await page.waitForTimeout(80);
   }
   await page.waitForTimeout(900);
 }
@@ -50,90 +51,77 @@ async function sweep(page) {
 const shot = (page, name, full = false) => page.screenshot({ path: `${OUT}${name}.png`, fullPage: full });
 
 for (const size of Object.keys(SIZES)) {
-  // 1) intro / loader (sesi baru, intro belum pernah tampil)
-  {
-    const { ctx, page } = await newPage(size, { skipIntro: false });
-    await page.goto(BASE + "/", { waitUntil: "domcontentloaded" });
-    await page.waitForTimeout(1500);
-    await shot(page, `home-${size}-intro`);
-    // tirai pixel membuka setelah intro
-    await page.waitForTimeout(1150);
-    await shot(page, `home-${size}-intro-curtain`);
-    await ctx.close();
-  }
-
-  // 2) tiap halaman: viewport atas + full page
+  // 1) tiap halaman: viewport atas + full page (terang), viewport atas (gelap)
   for (const [name, path] of PAGES) {
     const { ctx, page } = await newPage(size);
     await page.goto(BASE + path, { waitUntil: "networkidle" });
-    await page.waitForTimeout(1800);
-    await shot(page, `${name}-${size}-${name === "home" ? "hero" : "top"}`);
+    await page.waitForTimeout(1600);
+    await shot(page, `${name}-${size}-top`);
     await sweep(page);
     await page.evaluate(() => window.scrollTo(0, 0));
-    await page.waitForTimeout(600);
+    await page.waitForTimeout(500);
     await shot(page, `${name}-${size}-full`, true);
-    if (name === "home") {
-      // footer (credit roll + signature ASCII)
-      await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
-      await page.waitForTimeout(1500);
-      await shot(page, `home-${size}-footer`);
-      // section proyek pinned (desktop: horizontal)
-      // ukur dari pin-spacer (posisi section ikut bergeser setelah pin selesai)
-      const y = await page.evaluate(() => {
-        const s = document.querySelector("#featured-title")?.closest("section");
-        const el = s?.parentElement?.classList.contains("pin-spacer") ? s.parentElement : s;
-        return el.getBoundingClientRect().top + window.scrollY;
-      });
-      await page.evaluate((yy) => window.scrollTo(0, yy + 700), y);
-      await page.waitForTimeout(1500);
-      await shot(page, `home-${size}-pinned-projects`);
-    }
     await ctx.close();
   }
-
-  // 2b) dark mode: tiap halaman (viewport atas) + full page beranda
   for (const [name, path] of PAGES) {
-    const { ctx, page } = await newPage(size, { theme: "dark" });
+    const { ctx, page } = await newPage(size, "dark");
     await page.goto(BASE + path, { waitUntil: "networkidle" });
-    await page.waitForTimeout(1800);
+    await page.waitForTimeout(1600);
     await shot(page, `${name}-${size}-dark`);
     if (name === "home") {
       await sweep(page);
       await page.evaluate(() => window.scrollTo(0, 0));
-      await page.waitForTimeout(600);
+      await page.waitForTimeout(500);
       await shot(page, `home-${size}-dark-full`, true);
-      await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
-      await page.waitForTimeout(1500);
-      await shot(page, `home-${size}-dark-footer`);
     }
     await ctx.close();
   }
-  // 3) toggle tema: klik "Tema gelap" dari tema terang + filter proyek
+
+  // 2) interaksi: pencarian ⌘K, filter modul, menu mobile, toggle tema
   {
-    const { ctx, page } = await newPage(size, { theme: "light" });
-    await page.goto(BASE + "/about", { waitUntil: "networkidle" });
+    const { ctx, page } = await newPage(size);
+    await page.goto(BASE + "/docs", { waitUntil: "networkidle" });
+    await page.waitForTimeout(900);
+    await page.keyboard.press("/");
+    await page.waitForTimeout(500);
+    await page.keyboard.type("live");
+    await page.waitForTimeout(500);
+    await shot(page, `search-${size}-open`);
+    await ctx.close();
+  }
+  {
+    const { ctx, page } = await newPage(size);
+    await page.goto(BASE + "/modules", { waitUntil: "networkidle" });
+    await page.waitForTimeout(900);
+    await page.getByRole("button", { name: /^Admin/ }).click();
+    await page.waitForTimeout(1200);
+    await shot(page, `modules-${size}-filter-admin`);
+    await ctx.close();
+  }
+  if (size === "mobile") {
+    const { ctx, page } = await newPage(size);
+    await page.goto(BASE + "/", { waitUntil: "networkidle" });
+    await page.waitForTimeout(900);
+    await page.getByRole("button", { name: "Buka menu" }).click();
+    await page.waitForTimeout(900);
+    await shot(page, `menu-${size}-open`);
+    await ctx.close();
+  } else {
+    const { ctx, page } = await newPage(size);
+    await page.goto(BASE + "/access", { waitUntil: "networkidle" });
     await page.waitForTimeout(800);
     await page.getByRole("radio", { name: "Tema gelap" }).click();
     await page.waitForTimeout(900);
     await shot(page, `theme-${size}-toggled-dark`);
     await ctx.close();
   }
-  {
-    const { ctx, page } = await newPage(size);
-    await page.goto(BASE + "/projects", { waitUntil: "networkidle" });
-    await page.waitForTimeout(800);
-    await page.getByRole("button", { name: /^Bot/ }).click();
-    await page.waitForTimeout(1200);
-    await shot(page, `projects-${size}-filter-bot`);
-    await ctx.close();
-  }
 
-  // 4) transisi halaman: frame saat tile menutup & saat membuka
+  // 3) transisi halaman: frame saat tile menutup, menutupi, membuka, selesai
   {
     const { ctx, page } = await newPage(size);
     await page.goto(BASE + "/", { waitUntil: "networkidle" });
     await page.waitForTimeout(1200);
-    await page.getByRole("navigation", { name: "Utama" }).getByRole("link", { name: /projects/i }).click();
+    await page.evaluate(() => [...document.querySelectorAll("a[href='/docs/quickstart']")][0].click());
     await page.waitForTimeout(260);
     await shot(page, `transition-${size}-closing`);
     await page.waitForTimeout(520);

@@ -1,92 +1,61 @@
-/**
- * Data identitas & kontak. Edit di sini, bukan di komponen.
- * Nilai `null` = belum diverifikasi → UI menampilkan placeholder yang jelas
- * dan item terkait tercatat sebagai [TODO] di README.
- */
+/** Navigasi & identitas situs docs @jkt48/core. */
+
+import { pkg } from "./pkg";
 
 export const site = {
-  name: "Valzyy",
-  handle: "valzyy",
-  title: "Valzyy — independent full-stack developer",
+  name: "@jkt48/core",
+  title: "@jkt48/core — JKT48Connect API client",
   description:
-    "Portofolio Valzyy: independent full-stack developer dari Semarang, Jawa Tengah. Founder JKT48Connect, ekosistem fan-built yang jalan di Cloudflare Workers.",
-  role: "Independent full-stack developer",
-  roleShort: "Full-stack dev",
-  founderOf: "JKT48Connect",
-  since: 2024,
-  location: {
-    city: "Semarang",
-    province: "Jawa Tengah",
-    country: "Indonesia",
-    /** koordinat pusat kota Semarang (dibulatkan) */
-    lat: -6.97,
-    lon: 110.42,
-    timezone: "Asia/Jakarta",
-    tzLabel: "WIB",
-  },
-  /** URL produksi. [TODO] ganti setelah domain final dipasang. */
-  url: "https://porto.example.workers.dev",
+    "Dokumentasi lengkap @jkt48/core: client JavaScript resmi JKT48Connect API untuk Node.js, browser, dan React. Instalasi, konfigurasi, dan referensi semua method.",
+  /** [TODO] ganti ke domain final */
+  url: "https://valzyy-porto.netlify.app",
+  maker: "Valzyy",
+  org: "JKT48Connect",
+  place: "Semarang, Indonesia",
 } as const;
 
-export type ContactItem = {
-  id: string;
-  label: string;
-  /** teks yang tampil, mis. username */
-  value: string | null;
-  href: string | null;
-  note: string;
-  verified: boolean;
-};
+export type NavLink = { href: string; label: string; external?: boolean };
 
-export const contacts: ContactItem[] = [
-  {
-    id: "github",
-    label: "GitHub",
-    value: "valzyys",
-    href: "https://github.com/valzyys",
-    note: "akun pribadi — tercatat sebagai maintainer paket npm @jkt48/core",
-    verified: true,
-  },
-  {
-    id: "github-org",
-    label: "GitHub org",
-    value: "JKT48Connect",
-    href: "https://github.com/JKT48Connect",
-    note: "organisasi tempat repo jkt48-core",
-    verified: true,
-  },
-  {
-    id: "npm",
-    label: "npm",
-    value: "@jkt48/core",
-    href: "https://www.npmjs.com/package/@jkt48/core",
-    note: "client API JKT48Connect, lisensi MIT",
-    verified: true,
-  },
-  {
-    id: "email",
-    label: "Email",
-    value: null,
-    href: null,
-    note: "belum dipublikasikan — isi di content/site.ts",
-    verified: false,
-  },
-  {
-    id: "telegram",
-    label: "Telegram",
-    value: null,
-    href: null,
-    note: "belum dipublikasikan — isi di content/site.ts",
-    verified: false,
-  },
+/** grup dipisah garis vertikal di topbar */
+export const navGroups: NavLink[][] = [
+  [
+    { href: "/client", label: "Client" },
+    { href: "/modules", label: "Modules" },
+    { href: "/access", label: "Access" },
+  ],
+  [
+    { href: pkg.links.npm, label: "npm", external: true },
+    { href: pkg.links.github, label: "GitHub", external: true },
+  ],
+  [{ href: "/docs", label: "Docs" }],
 ];
 
-export type NavItem = { href: string; label: string; hint: string };
-
-export const nav: NavItem[] = [
-  { href: "/", label: "Home", hint: "panggung utama" },
-  { href: "/about", label: "About", hint: "bio, timeline, lokasi" },
-  { href: "/projects", label: "Projects", hint: "studi kasus & filter" },
-  { href: "/stack", label: "Stack", hint: "setlist teknologi" },
-  { href: "/contact", label: "Contact", hint: "encore — hubungi" },
+export const footerCols: { title: string; links: NavLink[] }[] = [
+  {
+    title: "Product",
+    links: [
+      { href: "/client", label: "Client" },
+      { href: "/modules", label: "Modules" },
+      { href: "/access", label: "Access" },
+      { href: "/docs", label: "Docs" },
+      { href: "/docs/installation", label: "Install" },
+    ],
+  },
+  {
+    title: "Reference",
+    links: [
+      { href: "/docs/api/client", label: "API reference" },
+      { href: "/docs/endpoints", label: "Endpoints" },
+      { href: "/docs/versions", label: "Versions" },
+      { href: "/docs/faq", label: "FAQ" },
+    ],
+  },
+  {
+    title: "Links",
+    links: [
+      { href: pkg.links.npm, label: "npm", external: true },
+      { href: pkg.links.github, label: "GitHub", external: true },
+      { href: pkg.links.apiDocs, label: "API docs", external: true },
+    ],
+  },
 ];
